@@ -1,0 +1,28 @@
+server:
+  port: 9002
+
+spring:
+  application:
+    name: client-bff
+
+# Backend service URLs
+services:
+  identity: http://localhost:8081
+  investment: http://localhost:8084
+  lending: http://localhost:8085
+  savings: http://localhost:8086
+  catalog: http://localhost:8090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.superapp.bff.client: DEBUG
+    org.springframework.web: INFO

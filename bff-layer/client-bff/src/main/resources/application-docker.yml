@@ -1,0 +1,10 @@
+services:
+  identity: http://identity-service:8081
+  investment: http://investment-service:8084
+  lending: http://lending-service:8085
+  savings: http://savings-service:8086
+  catalog: http://product-catalog-service:8090
+
+logging:
+  level:
+    com.superapp.bff.client: INFO

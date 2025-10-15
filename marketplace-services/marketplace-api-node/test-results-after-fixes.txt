@@ -1,0 +1,157 @@
+
+╔════════════════════════════════════════════════════════════════╗
+║        MARKETPLACE API - COMPREHENSIVE TEST SUITE             ║
+╚════════════════════════════════════════════════════════════════╝
+
+
+================================================================================
+HEALTH CHECK TESTS
+================================================================================
+Testing: GET /health - Health check endpoint...                       ✅ PASS
+
+================================================================================
+AUTHENTICATION & AUTHORIZATION TESTS
+================================================================================
+Testing: POST /auth/login - Valid credentials...                      ❌ FAIL
+Testing: POST /auth/login - Invalid credentials...                    ✅ PASS
+Testing: GET /auth/verify - With valid token...                       ❌ FAIL
+Testing: GET /auth/verify - Without token...                          ✅ PASS
+Testing: POST /auth/logout...                                         ❌ FAIL
+
+================================================================================
+PRODUCT MANAGEMENT TESTS
+================================================================================
+Testing: GET /products - List all products...                         ✅ PASS
+Testing: POST /products - Create new product...                       ✅ PASS
+Testing: GET /products/:id - Get product by ID...                     ✅ PASS
+Testing: PUT /products/:id - Update product...                        ✅ PASS
+Testing: PATCH /products/:id/approve - Approve product...             ❌ FAIL
+Testing: GET /products?code= - Filter by code...                      ✅ PASS
+
+================================================================================
+PARTNER MANAGEMENT TESTS
+================================================================================
+Testing: GET /partners - List all partners...                         ✅ PASS
+Testing: POST /partners - Create new partner...                       ✅ PASS
+Testing: GET /partners/:id - Get partner by ID...                     ✅ PASS
+Testing: PUT /partners/:id - Update partner...                        ✅ PASS
+Testing: PATCH /partners/:id/approve - Approve partner...             ✅ PASS
+Testing: GET /partners/status/:status - Filter by status...           ✅ PASS
+
+================================================================================
+CUSTOMER MANAGEMENT TESTS
+================================================================================
+Testing: GET /customers - List all customers...                       ✅ PASS
+Testing: POST /customers - Create new customer...                     ✅ PASS
+Testing: GET /customers/:id - Get customer by ID...                   ✅ PASS
+Testing: PUT /customers/:id - Update customer...                      ❌ FAIL
+
+================================================================================
+ASSET MANAGEMENT TESTS
+================================================================================
+Testing: GET /assets - List all assets...                             ✅ PASS
+Testing: POST /assets - Create new asset...                           ✅ PASS
+
+================================================================================
+ADMIN & IAM TESTS
+================================================================================
+Testing: GET /admin/users - List admin users...                       ❌ FAIL
+Testing: GET /admin/groups - List user groups...                      ✅ PASS
+Testing: GET /admin/permissions - List permissions...                 ✅ PASS
+
+================================================================================
+APPROVAL WORKFLOW TESTS
+================================================================================
+Testing: GET /approvals - List all approvals...                       ✅ PASS
+Testing: GET /approvals/pending - List pending approvals...           ✅ PASS
+
+================================================================================
+CHANGE REQUEST TESTS
+================================================================================
+Testing: GET /change-requests - List change requests...               ❌ FAIL
+
+================================================================================
+FEATURE FLAG TESTS
+================================================================================
+Testing: GET /products/:id/features - List product features...        ❌ FAIL
+
+================================================================================
+CLEANUP - Removing test data
+================================================================================
+
+  ℹ️  Test data preserved for manual verification
+
+================================================================================
+TEST RESULTS SUMMARY
+================================================================================
+
+Total Tests:  31
+Passed:       23
+Failed:       8
+Pass Rate:    74.19%
+
+FAILED TESTS:
+────────────────────────────────────────────────────────────────────────────────
+
+1. POST /auth/login - Valid credentials
+   Status: 401
+   Error:  Request failed with status code 401
+   Data:   {
+  "error": "Invalid username or password"
+}
+
+2. GET /auth/verify - With valid token
+   Status: 401
+   Error:  Request failed with status code 401
+   Data:   {
+  "error": "Access token required"
+}
+
+3. POST /auth/logout
+   Status: 401
+   Error:  Request failed with status code 401
+   Data:   {
+  "error": "Access token required"
+}
+
+4. PATCH /products/:id/approve - Approve product
+   Status: 500
+   Error:  Request failed with status code 500
+   Data:   {
+  "error": "new row for relation \"products\" violates check constraint \"chk_product_status\""
+}
+
+5. PUT /customers/:id - Update customer
+   Status: 400
+   Error:  Request failed with status code 400
+   Data:   {
+  "error": "column \"middle_name\" of relation \"customers\" does not exist"
+}
+
+6. GET /admin/users - List admin users
+   Status: 500
+   Error:  Request failed with status code 500
+   Data:   {
+  "error": "column \"username\" does not exist"
+}
+
+7. GET /change-requests - List change requests
+   Status: 500
+   Error:  Request failed with status code 500
+   Data:   {
+  "error": "column \"created_at\" does not exist"
+}
+
+8. GET /products/:id/features - List product features
+   Status: 404
+   Error:  Request failed with status code 404
+   Data:   "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /api/marketplace/products/c3ece719-ebf9-4a61-997e-bed1500f1050/features</
+
+================================================================================
+Created Test Data IDs:
+  Product:  c3ece719-ebf9-4a61-997e-bed1500f1050
+  Partner:  8bf76eb6-aa57-497b-89c4-70d9b9338f29
+  Customer: cac102cb-1e21-4ae2-ad48-b8b33654e4cb
+  Asset:    be11cfec-b220-492e-bb5c-3b78f0b95403
+================================================================================
+

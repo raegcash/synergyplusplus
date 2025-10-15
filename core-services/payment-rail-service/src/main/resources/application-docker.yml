@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/payment_db
+    username: postgres
+    password: postgres
+  
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+# Allow bean override for Docker
+spring.main.allow-bean-definition-overriding: true
+
+
+
+
