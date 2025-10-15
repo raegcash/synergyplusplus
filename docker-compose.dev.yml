@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Node.js Marketplace API (Currently Active)
+  marketplace-api-node:
+    build:
+      context: ./marketplace-services/marketplace-api-node
+      dockerfile: Dockerfile
+    container_name: marketplace-api-node
+    ports:
+      - "8085:8085"
+    environment:
+      - NODE_ENV=production
+      - PORT=8085
+      - DB_PATH=/app/data/marketplace.db
+    volumes:
+      - ./marketplace-services/marketplace-api-node/data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+  # Admin Portal Frontend
+  admin-portal:
+    build:
+      context: ./frontend-apps/admin-portal
+      dockerfile: Dockerfile
+    container_name: admin-portal
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8085/api/marketplace
+    depends_on:
+      marketplace-api-node:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+  # Client Portal (Optional)
+  client-app:
+    build:
+      context: ./frontend-apps/client-app
+      dockerfile: Dockerfile
+    container_name: client-app
+    ports:
+      - "3001:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8085/api/marketplace
+    depends_on:
+      marketplace-api-node:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+networks:
+  superapp-network:
+    name: superapp-network
+    driver: bridge
+
+volumes:
+  marketplace_data:
+    driver: local
+

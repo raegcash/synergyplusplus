@@ -1413,7 +1413,43 @@ app.get('/api/marketplace/products', (req, res) => {
   
   db.all(query, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows.map(transformProduct));
+    
+    // If no products, return empty array
+    if (!rows || rows.length === 0) {
+      return res.json([]);
+    }
+    
+    // Fetch partners for each product
+    const products = rows.map(transformProduct);
+    let completed = 0;
+    
+    products.forEach((product, index) => {
+      // Query to get partners mapped to this product
+      const partnersQuery = `
+        SELECT p.id, p.code, p.name, p.partner_type 
+        FROM partners p
+        INNER JOIN product_partners pp ON p.id = pp.partner_id
+        WHERE pp.product_id = ?
+      `;
+      
+      db.all(partnersQuery, [product.id], (err, partnerRows) => {
+        if (!err && partnerRows) {
+          products[index].partners = partnerRows.map(p => ({
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            type: p.partner_type
+          }));
+        } else {
+          products[index].partners = [];
+        }
+        
+        completed++;
+        if (completed === products.length) {
+          res.json(products);
+        }
+      });
+    });
   });
 });
 
@@ -1699,7 +1735,60 @@ app.get('/api/marketplace/partners', (req, res) => {
   
   db.all(query, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows.map(transformPartner));
+    
+    // If no partners, return empty array
+    if (!rows || rows.length === 0) {
+      return res.json([]);
+    }
+    
+    // Fetch products for each partner
+    const partners = rows.map(transformPartner);
+    let completed = 0;
+    
+    partners.forEach((partner, index) => {
+      // Query to get products mapped to this partner
+      const productsQuery = `
+        SELECT p.id, p.code, p.name, p.product_type 
+        FROM products p
+        INNER JOIN product_partners pp ON p.id = pp.product_id
+        WHERE pp.partner_id = ?
+      `;
+      
+      db.all(productsQuery, [partner.id], (err, productRows) => {
+        if (!err && productRows) {
+          partners[index].products = productRows.map(p => ({
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            productType: p.product_type
+          }));
+          partners[index].productsCount = productRows.length;
+        } else {
+          partners[index].products = [];
+          partners[index].productsCount = 0;
+        }
+        
+        // Also get assets count for this partner
+        const assetsQuery = `
+          SELECT COUNT(*) as count 
+          FROM assets 
+          WHERE partner_id = ?
+        `;
+        
+        db.get(assetsQuery, [partner.id], (err, assetRow) => {
+          if (!err && assetRow) {
+            partners[index].assetsCount = assetRow.count;
+          } else {
+            partners[index].assetsCount = 0;
+          }
+          
+          completed++;
+          if (completed === partners.length) {
+            res.json(partners);
+          }
+        });
+      });
+    });
   });
 });
 
@@ -1722,7 +1811,60 @@ app.get('/api/marketplace/partners', (req, res) => {
 app.get('/api/marketplace/partners/status/:status', (req, res) => {
   db.all('SELECT * FROM partners WHERE status = ? ORDER BY created_at DESC', [req.params.status], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows.map(transformPartner));
+    
+    // If no partners, return empty array
+    if (!rows || rows.length === 0) {
+      return res.json([]);
+    }
+    
+    // Fetch products for each partner
+    const partners = rows.map(transformPartner);
+    let completed = 0;
+    
+    partners.forEach((partner, index) => {
+      // Query to get products mapped to this partner
+      const productsQuery = `
+        SELECT p.id, p.code, p.name, p.product_type 
+        FROM products p
+        INNER JOIN product_partners pp ON p.id = pp.product_id
+        WHERE pp.partner_id = ?
+      `;
+      
+      db.all(productsQuery, [partner.id], (err, productRows) => {
+        if (!err && productRows) {
+          partners[index].products = productRows.map(p => ({
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            productType: p.product_type
+          }));
+          partners[index].productsCount = productRows.length;
+        } else {
+          partners[index].products = [];
+          partners[index].productsCount = 0;
+        }
+        
+        // Also get assets count for this partner
+        const assetsQuery = `
+          SELECT COUNT(*) as count 
+          FROM assets 
+          WHERE partner_id = ?
+        `;
+        
+        db.get(assetsQuery, [partner.id], (err, assetRow) => {
+          if (!err && assetRow) {
+            partners[index].assetsCount = assetRow.count;
+          } else {
+            partners[index].assetsCount = 0;
+          }
+          
+          completed++;
+          if (completed === partners.length) {
+            res.json(partners);
+          }
+        });
+      });
+    });
   });
 });
 
@@ -2090,6 +2232,7 @@ const transformAsset = (row) => ({
   code: row.code,
   name: row.name,
   assetType: row.asset_type,
+  category: row.category,
   description: row.description,
   currentPrice: row.price || row.current_price, // PostgreSQL uses 'price' column
   price: row.price, // Also include as 'price' for compatibility
@@ -2099,8 +2242,14 @@ const transformAsset = (row) => ({
   indicativeUnits: row.indicative_units,
   indicativeNavpu: row.indicative_navpu,
   navAsOfDate: row.nav_as_of_date,
+  navPerUnit: row.nav_per_unit,
+  fundManager: row.fund_manager,
+  fundHouse: row.fund_house,
   riskLevel: row.risk_level,
   status: row.status,
+  submissionSource: row.submission_source || 'ADMIN',
+  marketCap: row.market_cap,
+  change24h: row.change_24h,
   submittedBy: row.submitted_by,
   submittedAt: row.submitted_at,
   approvedAt: row.approved_at,
@@ -2121,8 +2270,8 @@ const transformAsset = (row) => ({
  *         description: List of all assets with product and partner names
  */
 app.get('/api/marketplace/assets', (req, res) => {
-  // Support filtering by status query parameter
-  const { status } = req.query;
+  // Support filtering by status and submissionSource query parameters
+  const { status, submissionSource } = req.query;
   
   let query = `SELECT a.*, p.name as product_name, pr.name as partner_name 
     FROM assets a 
@@ -2130,10 +2279,20 @@ app.get('/api/marketplace/assets', (req, res) => {
     LEFT JOIN partners pr ON a.partner_id = pr.id`;
   
   const params = [];
+  const conditions = [];
   
   if (status) {
-    query += ' WHERE a.status = ?';
+    conditions.push('a.status = ?');
     params.push(status);
+  }
+  
+  if (submissionSource) {
+    conditions.push('a.submission_source = ?');
+    params.push(submissionSource);
+  }
+  
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
   }
   
   query += ' ORDER BY a.created_at DESC';

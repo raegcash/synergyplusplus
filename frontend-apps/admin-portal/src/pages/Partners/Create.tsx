@@ -44,10 +44,10 @@ const PartnerCreate = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Fetch ACTIVE products (products that have been approved by admin)
+  // Fetch APPROVED products (products that have been approved by admin)
   const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['products', 'ACTIVE'],
-    queryFn: () => productsAPI.getAll('ACTIVE'),
+    queryKey: ['products', 'APPROVED'],
+    queryFn: () => productsAPI.getAll('APPROVED'),
   })
 
   // Create partner mutation
@@ -133,9 +133,9 @@ const PartnerCreate = () => {
           Workflow Note:
         </Typography>
         <Typography variant="body2">
-          • Select ACTIVE products to map this partner with
+          • Select APPROVED products to map this partner with
           <br />
-          • Partner becomes ACTIVE after admin approval
+          • Partner becomes APPROVED after admin approval
           <br />
           • Assets can then be added to this partner-product combination
         </Typography>
@@ -265,8 +265,8 @@ const PartnerCreate = () => {
             </Typography>
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                <strong>Important:</strong> Select which ACTIVE products this partner will be associated with. 
-                Only ACTIVE products are available for mapping.
+                <strong>Important:</strong> Select which APPROVED products this partner will be associated with. 
+                Only APPROVED products are available for mapping.
               </Typography>
             </Alert>
           </Grid>
@@ -300,7 +300,7 @@ const PartnerCreate = () => {
                   <MenuItem disabled>Loading products...</MenuItem>
                 ) : products.length === 0 ? (
                   <MenuItem disabled>
-                    No active products available. Please create and approve products first.
+                    No approved products available. Please create and approve products first.
                   </MenuItem>
                 ) : (
                   products.map((product) => (

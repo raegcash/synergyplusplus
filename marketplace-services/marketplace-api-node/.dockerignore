@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+*.md
+*.log
+backend.log
+backend-restart.log
+test-run.log
+test-results-after-fixes.txt
+tests
+docs
+

@@ -1,0 +1,63 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: superapp-postgres
+    environment:
+      POSTGRES_USER: marketplace_user
+      POSTGRES_PASSWORD: marketplace_pass
+      POSTGRES_DB: superapp_marketplace_node
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-marketplace.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marketplace_user -d superapp_marketplace_node"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+  # Node.js Marketplace API (Currently Active)
+  marketplace-api-node:
+    build:
+      context: ./marketplace-services/marketplace-api-node
+      dockerfile: Dockerfile
+    container_name: marketplace-api-node
+    ports:
+      - "8085:8085"
+    environment:
+      - NODE_ENV=development
+      - PORT=8085
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=superapp_marketplace_node
+      - DB_USER=marketplace_user
+      - DB_PASSWORD=marketplace_pass
+    volumes:
+      - ./marketplace-services/marketplace-api-node/data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/api/marketplace/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+networks:
+  superapp-network:
+    name: superapp-network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+

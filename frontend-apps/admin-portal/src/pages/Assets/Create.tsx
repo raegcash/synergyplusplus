@@ -15,11 +15,13 @@ import {
   InputAdornment,
   Alert,
   Chip,
+  IconButton,
 } from '@mui/material'
 import {
   ArrowBack as BackIcon,
   Save as SaveIcon,
   LinkOff as LinkOffIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material'
 import { assetsAPI } from '../../services/assets'
 import { productsAPI } from '../../services/products'
@@ -64,16 +66,16 @@ const AssetCreate = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Fetch ACTIVE products
+  // Fetch APPROVED products (products that have been approved by admin)
   const { data: allProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['products', 'ACTIVE'],
-    queryFn: () => productsAPI.getAll('ACTIVE'),
+    queryKey: ['products', 'APPROVED'],
+    queryFn: () => productsAPI.getAll('APPROVED'),
   })
 
-  // Fetch ACTIVE partners
+  // Fetch APPROVED partners (partners that have been approved by admin)
   const { data: allPartners = [], isLoading: partnersLoading } = useQuery({
-    queryKey: ['partners', 'ACTIVE'],
-    queryFn: () => partnersAPI.getAll('ACTIVE'),
+    queryKey: ['partners', 'APPROVED'],
+    queryFn: () => partnersAPI.getAll('APPROVED'),
   })
 
   // Filter products based on selected partner
@@ -216,9 +218,9 @@ const AssetCreate = () => {
         <Typography variant="body2">
           • Select a product and partner that are already mapped together
           <br />
-          • Only partners mapped to the selected product will appear in the dropdown
+          • Only APPROVED partners mapped to the selected product will appear in the dropdown
           <br />
-          • Asset becomes ACTIVE after admin approval
+          • Asset becomes APPROVED after admin approval
         </Typography>
       </Alert>
 
@@ -316,7 +318,8 @@ const AssetCreate = () => {
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
                 <strong>Important:</strong> You can select either product or partner first. 
-                The other dropdown will automatically filter to show only valid mappings.
+                The other dropdown will automatically filter to show only APPROVED and valid mappings.
+                Use the X button to clear your selection if needed.
               </Typography>
             </Alert>
           </Grid>
@@ -330,6 +333,23 @@ const AssetCreate = () => {
                 onChange={(e) => handleInputChange('productId', e.target.value)}
                 label="Select Product"
                 disabled={productsLoading}
+                MenuProps={{
+                  autoFocus: false,
+                }}
+                endAdornment={
+                  formData.productId ? (
+                    <IconButton
+                      size="small"
+                      sx={{ mr: 2 }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleInputChange('productId', '')
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  ) : null
+                }
               >
                 {productsLoading ? (
                   <MenuItem disabled>Loading products...</MenuItem>
@@ -337,7 +357,7 @@ const AssetCreate = () => {
                   <MenuItem disabled>
                     {formData.partnerId 
                       ? 'No products mapped to selected partner'
-                      : 'No active products available'}
+                      : 'No approved products available'}
                   </MenuItem>
                 ) : (
                   filteredProducts.map((product) => (
@@ -377,6 +397,23 @@ const AssetCreate = () => {
                 onChange={(e) => handleInputChange('partnerId', e.target.value)}
                 label="Select Partner"
                 disabled={partnersLoading}
+                MenuProps={{
+                  autoFocus: false,
+                }}
+                endAdornment={
+                  formData.partnerId ? (
+                    <IconButton
+                      size="small"
+                      sx={{ mr: 2 }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleInputChange('partnerId', '')
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  ) : null
+                }
               >
                 {partnersLoading ? (
                   <MenuItem disabled>Loading partners...</MenuItem>
@@ -384,7 +421,7 @@ const AssetCreate = () => {
                   <MenuItem disabled>
                     {formData.productId 
                       ? 'No partners mapped to selected product'
-                      : 'No active partners available'}
+                      : 'No approved partners available'}
                   </MenuItem>
                 ) : (
                   filteredPartners.map((partner) => (
