@@ -311,7 +311,7 @@ export const assetIntegrationsAPI = {
   },
 
   // Test integration connection
-  testConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
+  testConnection: async (_id: string): Promise<{ success: boolean; message: string }> => {
     await new Promise(resolve => setTimeout(resolve, 2000))
     // Simulate connection test
     return Promise.resolve({
@@ -321,7 +321,7 @@ export const assetIntegrationsAPI = {
   },
 
   // Manually trigger sync
-  triggerSync: async (id: string): Promise<{ success: boolean; jobId: string }> => {
+  triggerSync: async (_id: string): Promise<{ success: boolean; jobId: string }> => {
     await new Promise(resolve => setTimeout(resolve, 500))
     return Promise.resolve({
       success: true,

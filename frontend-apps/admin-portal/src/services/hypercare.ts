@@ -1,16 +1,17 @@
 // Hypercare Services
 // Greylist, Eligibility, and Data Points management
 
-import axios from 'axios'
+// import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085/api/marketplace'
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085/api/marketplace'
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+// API client for future use
+// const api = axios.create({
+//   baseURL: API_BASE_URL,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// })
 
 // ============= GREYLIST =============
 
@@ -508,7 +509,7 @@ export const hypercareAPI = {
     return mockConnections
   },
 
-  testConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
+  testConnection: async (_id: string): Promise<{ success: boolean; message: string }> => {
     await new Promise(resolve => setTimeout(resolve, 1000))
     return { success: true, message: 'Connection successful' }
   },

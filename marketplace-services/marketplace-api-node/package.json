@@ -10,7 +10,7 @@
     "test:integration": "jest --testPathPattern=integration",
     "test:api": "node tests/api-test-suite.js",
     "init-schema": "node scripts/init-schema.js",
-    "reset-password": "node scripts/reset-admin-password.js",
+    "reset-password": "bash scripts/reset-admin-password.sh",
     "migrate:from-sqlite": "node scripts/migrate-sqlite-to-postgres.js"
   },
   "keywords": [

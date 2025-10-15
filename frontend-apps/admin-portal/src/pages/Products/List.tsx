@@ -31,7 +31,7 @@ import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material'
-import { productsAPI, Product } from '../../services/products'
+import { productsAPI } from '../../services/products'
 
 const ProductsList = () => {
   const navigate = useNavigate()

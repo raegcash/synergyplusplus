@@ -66,16 +66,26 @@ const AssetCreate = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Fetch APPROVED products (products that have been approved by admin)
+  // Fetch ACTIVE products (products that have been approved by admin)
   const { data: allProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['products', 'APPROVED'],
-    queryFn: () => productsAPI.getAll('APPROVED'),
+    queryKey: ['products', 'ACTIVE'],
+    queryFn: async () => {
+      console.log('Fetching ACTIVE products...')
+      const products = await productsAPI.getAll('ACTIVE')
+      console.log('Fetched products:', products.length, 'Products with partners:', products.filter(p => p.partners?.length > 0).length)
+      return products
+    },
   })
 
-  // Fetch APPROVED partners (partners that have been approved by admin)
+  // Fetch ACTIVE partners (partners that have been approved by admin)
   const { data: allPartners = [], isLoading: partnersLoading } = useQuery({
-    queryKey: ['partners', 'APPROVED'],
-    queryFn: () => partnersAPI.getAll('APPROVED'),
+    queryKey: ['partners', 'ACTIVE'],
+    queryFn: async () => {
+      console.log('Fetching ACTIVE partners...')
+      const partners = await partnersAPI.getAll('ACTIVE')
+      console.log('Fetched partners:', partners.length, 'Partners with products:', partners.filter(p => p.products?.length > 0).length)
+      return partners
+    },
   })
 
   // Filter products based on selected partner
@@ -96,16 +106,23 @@ const AssetCreate = () => {
   // Filter partners based on selected product
   const filteredPartners = useMemo(() => {
     if (!formData.productId) {
+      console.log('No product selected, showing all partners:', allPartners.length)
       return allPartners // Show all partners if no product selected
     }
     // Only show partners that are mapped to this product
     const selectedProduct = allProducts.find(p => p.id === formData.productId)
+    console.log('Selected product:', selectedProduct?.name, 'Partners in product:', selectedProduct?.partners)
+    
     if (!selectedProduct?.partners) {
+      console.warn('Selected product has no partners array or is empty')
       return []
     }
-    return allPartners.filter(partner => 
+    
+    const filtered = allPartners.filter(partner => 
       selectedProduct.partners?.some(p => p.id === partner.id)
     )
+    console.log('Filtered partners count:', filtered.length, 'Partners:', filtered.map(p => p.name))
+    return filtered
   }, [formData.productId, allPartners, allProducts])
 
   // When product changes, validate if current partner is still valid
@@ -218,9 +235,9 @@ const AssetCreate = () => {
         <Typography variant="body2">
           • Select a product and partner that are already mapped together
           <br />
-          • Only APPROVED partners mapped to the selected product will appear in the dropdown
+          • Only ACTIVE partners mapped to the selected product will appear in the dropdown
           <br />
-          • Asset becomes APPROVED after admin approval
+          • Asset becomes ACTIVE after admin approval
         </Typography>
       </Alert>
 
@@ -318,7 +335,7 @@ const AssetCreate = () => {
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
                 <strong>Important:</strong> You can select either product or partner first. 
-                The other dropdown will automatically filter to show only APPROVED and valid mappings.
+                The other dropdown will automatically filter to show only ACTIVE and valid mappings.
                 Use the X button to clear your selection if needed.
               </Typography>
             </Alert>
@@ -357,7 +374,7 @@ const AssetCreate = () => {
                   <MenuItem disabled>
                     {formData.partnerId 
                       ? 'No products mapped to selected partner'
-                      : 'No approved products available'}
+                      : 'No active products available'}
                   </MenuItem>
                 ) : (
                   filteredProducts.map((product) => (
@@ -421,7 +438,7 @@ const AssetCreate = () => {
                   <MenuItem disabled>
                     {formData.productId 
                       ? 'No partners mapped to selected product'
-                      : 'No approved partners available'}
+                      : 'No active partners available'}
                   </MenuItem>
                 ) : (
                   filteredPartners.map((partner) => (

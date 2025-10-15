@@ -333,7 +333,7 @@ const mockUsers: UserAccount[] = [
 // API methods
 export const operationsAPI = {
   // Transaction Summaries
-  getTransactionSummaries: async (period = 'month'): Promise<TransactionSummary[]> => {
+  getTransactionSummaries: async (_period = 'month'): Promise<TransactionSummary[]> => {
     await new Promise(resolve => setTimeout(resolve, 300))
     return mockTransactionSummaries
   },

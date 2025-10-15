@@ -16,7 +16,6 @@ import {
 import {
   ArrowBack as BackIcon,
   Edit as EditIcon,
-  CheckCircle as CheckIcon,
 } from '@mui/icons-material'
 import { productsAPI } from '../../services/products'
 

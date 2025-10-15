@@ -84,9 +84,13 @@ const ProductsAndFeatures = () => {
     )
   }
 
-  // Mutations - All changes now go through approval workflow
+  // Mutations - Toggle changes are applied immediately AND create approval request
   const toggleMaintenanceMutation = useMutation({
     mutationFn: async (data: { id: string; code: string; name: string; currentValue: boolean }) => {
+      // First, update the database immediately
+      await productsAPI.toggleMaintenance(data.id)
+      
+      // Then create a change request for tracking/approval
       return changeRequestsAPI.create({
         action: 'MAINTENANCE_TOGGLE',
         productId: data.id,
@@ -98,15 +102,22 @@ const ProductsAndFeatures = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
-      console.log('Maintenance mode change request submitted for approval.')
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      console.log('Maintenance mode changed and submitted for approval.')
     },
     onError: (error) => {
-      console.error('Failed to submit change request:', error)
+      console.error('Failed to toggle maintenance mode:', error)
+      // Revert the change if it fails
+      queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
 
   const toggleWhitelistMutation = useMutation({
     mutationFn: async (data: { id: string; code: string; name: string; currentValue: boolean }) => {
+      // First, update the database immediately
+      await productsAPI.toggleWhitelist(data.id)
+      
+      // Then create a change request for tracking/approval
       return changeRequestsAPI.create({
         action: 'WHITELIST_TOGGLE',
         productId: data.id,
@@ -118,16 +129,24 @@ const ProductsAndFeatures = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
-      console.log('Whitelist mode change request submitted for approval.')
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      console.log('Whitelist mode changed and submitted for approval.')
     },
     onError: (error) => {
-      console.error('Failed to submit change request:', error)
+      console.error('Failed to toggle whitelist mode:', error)
+      // Revert the change if it fails
+      queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
 
   const toggleOperationalMutation = useMutation({
     mutationFn: async (data: { id: string; code: string; name: string; currentValue: string }) => {
       const newStatus = data.currentValue === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE'
+      
+      // First, update the database immediately
+      await productsAPI.update(data.id, { status: newStatus } as any)
+      
+      // Then create a change request for tracking/approval
       return changeRequestsAPI.create({
         action: 'OPERATIONAL_TOGGLE',
         productId: data.id,
@@ -139,10 +158,13 @@ const ProductsAndFeatures = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
-      console.log('Operational status change request submitted for approval.')
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      console.log('Operational status changed and submitted for approval.')
     },
     onError: (error) => {
-      console.error('Failed to create change request:', error)
+      console.error('Failed to toggle operational status:', error)
+      // Revert the change if it fails
+      queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
 

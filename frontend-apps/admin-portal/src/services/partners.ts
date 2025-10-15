@@ -385,7 +385,7 @@ export const partnersAPI = {
   getPending: async () => {
     if (USE_MOCK_DATA) {
       await new Promise(resolve => setTimeout(resolve, 300))
-      return mockPartnersStore.filter(p => p.status === 'PENDING' || p.status === 'PENDING_APPROVAL')
+      return mockPartnersStore.filter(p => p.status === 'PENDING_APPROVAL')
     }
     
     try {
@@ -393,7 +393,7 @@ export const partnersAPI = {
       return response.data
     } catch (error) {
       console.warn('API call failed, using mock data:', error)
-      return mockPartnersStore.filter(p => p.status === 'PENDING' || p.status === 'PENDING_APPROVAL')
+      return mockPartnersStore.filter(p => p.status === 'PENDING_APPROVAL')
     }
   },
 }

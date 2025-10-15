@@ -44,10 +44,10 @@ const PartnerCreate = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Fetch APPROVED products (products that have been approved by admin)
+  // Fetch ACTIVE products (products that have been approved by admin)
   const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['products', 'APPROVED'],
-    queryFn: () => productsAPI.getAll('APPROVED'),
+    queryKey: ['products', 'ACTIVE'],
+    queryFn: () => productsAPI.getAll('ACTIVE'),
   })
 
   // Create partner mutation
@@ -266,7 +266,7 @@ const PartnerCreate = () => {
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
                 <strong>Important:</strong> Select which APPROVED products this partner will be associated with. 
-                Only APPROVED products are available for mapping.
+                Only ACTIVE (approved) products are available for mapping.
               </Typography>
             </Alert>
           </Grid>
@@ -280,6 +280,9 @@ const PartnerCreate = () => {
                 value={formData.productIds}
                 onChange={handleProductsChange}
                 input={<OutlinedInput label="Select Products to Map" />}
+                MenuProps={{
+                  autoFocus: false,
+                }}
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map((value) => {
@@ -290,6 +293,16 @@ const PartnerCreate = () => {
                           label={product?.name || value}
                           size="small"
                           color="info"
+                          onDelete={(e) => {
+                            e.stopPropagation()
+                            setFormData(prev => ({
+                              ...prev,
+                              productIds: prev.productIds.filter(id => id !== value)
+                            }))
+                          }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                          }}
                         />
                       )
                     })}
@@ -300,7 +313,7 @@ const PartnerCreate = () => {
                   <MenuItem disabled>Loading products...</MenuItem>
                 ) : products.length === 0 ? (
                   <MenuItem disabled>
-                    No approved products available. Please create and approve products first.
+                    No active products available. Please create and approve products first.
                   </MenuItem>
                 ) : (
                   products.map((product) => (

@@ -60,7 +60,7 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(bodyParser.json());
@@ -1600,7 +1600,7 @@ app.put('/api/marketplace/products/:id', (req, res) => {
 
 app.patch('/api/marketplace/products/:id/approve', (req, res) => {
   const now = new Date().toISOString();
-  // PostgreSQL check constraint allows: PENDING_APPROVAL, ACTIVE, INACTIVE, REJECTED
+  // Set status to ACTIVE after admin approval (matches DB constraint)
   db.run('UPDATE products SET status = ?, approved_at = ?, updated_at = ? WHERE id = ?',
     ['ACTIVE', now, now, req.params.id], function(err) {
     if (err) return res.status(500).json({ error: err.message });
@@ -1967,18 +1967,26 @@ app.post('/api/marketplace/partners', (req, res) => {
         }
         
         try {
-          // Map to products if provided
-          if (req.body.products && Array.isArray(req.body.products) && req.body.products.length > 0) {
+          // Map to products if provided (accept both 'products' and 'productIds' for compatibility)
+          const productIdsToMap = req.body.productIds || req.body.products || [];
+          console.log('📦 Partner creation - productIds received:', req.body.productIds);
+          console.log('📦 Partner creation - products received:', req.body.products);
+          console.log('📦 Partner creation - productIdsToMap:', productIdsToMap);
+          
+          if (Array.isArray(productIdsToMap) && productIdsToMap.length > 0) {
             let completedMappings = 0;
-            const totalMappings = req.body.products.length;
+            const totalMappings = productIdsToMap.length;
             
-            req.body.products.forEach(productId => {
+            productIdsToMap.forEach(productId => {
               const ppId = uuidv4();
-              db.run('INSERT INTO product_partners (id, product_id, partner_id, status, mapped_at, mapped_by) VALUES (?, ?, ?, ?, ?, ?)',
-                [ppId, productId, id, 'ACTIVE', new Date().toISOString(), 'admin@superapp.com'],
+              console.log(`Creating product-partner mapping: Product ${productId} <-> Partner ${id}`);
+              db.run('INSERT INTO product_partners (id, product_id, partner_id) VALUES (?, ?, ?)',
+                [ppId, productId, id],
                 function(err) {
                   if (err) {
-                    console.error('Error mapping partner to product:', err);
+                    console.error('❌ Error mapping partner to product:', err);
+                  } else {
+                    console.log(`✅ Successfully mapped partner to product`);
                   }
                   completedMappings++;
                   
@@ -3328,6 +3336,88 @@ app.delete('/api/marketplace/greylist/:id', (req, res) => {
  */
 app.get('/api/marketplace/health', (req, res) => {
   res.json({ status: 'UP', timestamp: new Date().toISOString() });
+});
+
+// ============================================
+// TEMPORARY FIX ENDPOINT - Manually Create Product-Partner Mapping
+// ============================================
+app.post('/api/marketplace/admin/fix-mapping', (req, res) => {
+  const { productCode, partnerCode } = req.body;
+  
+  console.log(`🔧 Manual mapping fix requested: ${productCode} <-> ${partnerCode}`);
+  
+  if (!productCode || !partnerCode) {
+    return res.status(400).json({ error: 'productCode and partnerCode are required' });
+  }
+  
+  // Get product
+  db.get('SELECT id, name FROM products WHERE code = ?', [productCode], (err, product) => {
+    if (err) {
+      console.error('Error finding product:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    if (!product) {
+      return res.status(404).json({ error: `Product ${productCode} not found` });
+    }
+    
+    console.log(`✅ Found product: ${product.name}`);
+    
+    // Get partner  
+    db.get('SELECT id, name FROM partners WHERE code = ?', [partnerCode], (err, partner) => {
+      if (err) {
+        console.error('Error finding partner:', err);
+        return res.status(500).json({ error: err.message });
+      }
+      if (!partner) {
+        return res.status(404).json({ error: `Partner ${partnerCode} not found` });
+      }
+      
+      console.log(`✅ Found partner: ${partner.name}`);
+      
+      // Check if mapping exists
+      db.get('SELECT * FROM product_partners WHERE product_id = ? AND partner_id = ?',
+        [product.id, partner.id], (err, existing) => {
+        
+        if (err) {
+          console.error('Error checking existing mapping:', err);
+          return res.status(500).json({ error: err.message });
+        }
+        
+        if (existing) {
+          console.log('⚠️  Mapping already exists');
+          return res.json({ 
+            message: 'Mapping already exists',
+            product: product.name,
+            partner: partner.name
+          });
+        }
+        
+        // Create mapping
+        const mappingId = uuidv4();
+        const now = new Date().toISOString();
+        
+        console.log(`📝 Creating mapping: ${product.name} <-> ${partner.name}`);
+        
+        db.run('INSERT INTO product_partners (id, product_id, partner_id, created_at) VALUES (?, ?, ?, ?)',
+          [mappingId, product.id, partner.id, now], function(err) {
+          
+          if (err) {
+            console.error('❌ Failed to create mapping:', err);
+            return res.status(500).json({ error: err.message });
+          }
+          
+          console.log(`✅ Mapping created successfully!`);
+          res.json({
+            success: true,
+            message: `Mapping created between ${product.name} and ${partner.name}`,
+            product: product.name,
+            partner: partner.name,
+            mappingId
+          });
+        });
+      });
+    });
+  });
 });
 
 // ============================================

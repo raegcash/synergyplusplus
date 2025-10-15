@@ -181,25 +181,14 @@ const ApprovalsIndex = () => {
   // Change request approve mutation
   const approveChangeRequestMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Change is already applied in the database, just approve the request for tracking
       const changeRequest = await changeRequestsAPI.approve(id, 'admin@company.com')
-      
-      // Apply the change to the product
-      const { action, productId, proposedValue } = changeRequest
-      
-      if (action === 'OPERATIONAL_TOGGLE') {
-        await productsAPI.update(productId, { status: proposedValue } as any)
-      } else if (action === 'WHITELIST_TOGGLE') {
-        await productsAPI.toggleWhitelist(productId)
-      } else if (action === 'MAINTENANCE_TOGGLE') {
-        await productsAPI.toggleMaintenance(productId)
-      }
-      
       return changeRequest
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      console.log('Change request approved and applied!')
+      console.log('Change request approved! (Change was already applied)')
       setApprovalDialog(false)
       setSelectedItem(null)
     },
@@ -210,14 +199,39 @@ const ApprovalsIndex = () => {
 
   // Change request reject mutation
   const rejectChangeRequestMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      changeRequestsAPI.reject(id, reason, 'admin@company.com'),
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      // Get the change request to know what to revert
+      const changeRequest = pendingChangeRequests.find(cr => cr.id === id)
+      
+      if (changeRequest) {
+        // Revert the change back to original value
+        const { action, productId, currentValue } = changeRequest
+        
+        if (action === 'OPERATIONAL_TOGGLE') {
+          // Revert status to original value
+          await productsAPI.update(productId, { status: currentValue } as any)
+        } else if (action === 'WHITELIST_TOGGLE') {
+          // Toggle back if current state doesn't match original
+          await productsAPI.toggleWhitelist(productId)
+        } else if (action === 'MAINTENANCE_TOGGLE') {
+          // Toggle back if current state doesn't match original
+          await productsAPI.toggleMaintenance(productId)
+        }
+      }
+      
+      // Then reject the change request
+      return changeRequestsAPI.reject(id, reason, 'admin@company.com')
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
-      console.log('Change request rejected')
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      console.log('Change request rejected and reverted')
       setRejectionDialog(false)
       setSelectedItem(null)
       setRejectionReason('')
+    },
+    onError: (error: any) => {
+      console.log(`Error: ${error.message}`)
     },
   })
 

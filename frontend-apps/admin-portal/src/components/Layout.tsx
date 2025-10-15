@@ -54,10 +54,10 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [hypercareOpen, setHypercareOpen] = useState(true)
-  const [integrationsOpen, setIntegrationsOpen] = useState(true)
-  const [operationsOpen, setOperationsOpen] = useState(true)
-  const [adminOpen, setAdminOpen] = useState(true)
+  const [hypercareOpen, setHypercareOpen] = useState(false)
+  const [integrationsOpen, setIntegrationsOpen] = useState(false)
+  const [operationsOpen, setOperationsOpen] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -79,21 +79,6 @@ const Layout = ({ children }: LayoutProps) => {
     { text: 'Products', icon: <CatalogIcon />, path: '/products' },
     { text: 'Partners', icon: <PartnerIcon />, path: '/partners' },
     { text: 'Assets', icon: <DataIcon />, path: '/assets' },
-    {
-      text: 'Integrations',
-      icon: <SyncIcon />,
-      path: '/integrations',
-      hasSubmenu: true,
-      submenu: [
-        { text: 'Overview', icon: <HomeIcon />, path: '/integrations' },
-        { text: 'Scheduled Tasks', icon: <CheckIcon />, path: '/integrations/scheduled-tasks' },
-        { text: 'Transactions', icon: <CheckIcon />, path: '/integrations/transactions' },
-        { text: 'Data Feeds', icon: <MetricsIcon />, path: '/integrations/data-feeds' },
-        { text: 'Settlement', icon: <IncidentsIcon />, path: '/integrations/settlement' },
-        { text: 'Reporting', icon: <DataIcon />, path: '/integrations/reporting' },
-      ],
-    },
-    { text: 'Approvals', icon: <ApprovalIcon />, path: '/approvals' },
     { 
       text: 'Hypercare', 
       icon: <HypercareIcon />, 
@@ -119,6 +104,13 @@ const Layout = ({ children }: LayoutProps) => {
         { text: 'Performance', icon: <MetricsIcon />, path: '/operations/performance' },
         { text: 'Reports', icon: <AuditIcon />, path: '/operations/reports' },
         { text: 'Report Builder', icon: <DataIcon />, path: '/operations/report-builder' },
+        { divider: true },
+        { text: 'Integrations Overview', icon: <SyncIcon />, path: '/integrations' },
+        { text: 'Scheduled Tasks', icon: <CheckIcon />, path: '/integrations/scheduled-tasks' },
+        { text: 'Transactions', icon: <CheckIcon />, path: '/integrations/transactions' },
+        { text: 'Data Feeds', icon: <MetricsIcon />, path: '/integrations/data-feeds' },
+        { text: 'Settlement', icon: <IncidentsIcon />, path: '/integrations/settlement' },
+        { text: 'Reporting', icon: <DataIcon />, path: '/integrations/reporting' },
       ]
     },
     { divider: true },
@@ -132,6 +124,7 @@ const Layout = ({ children }: LayoutProps) => {
         { text: 'User Groups', icon: <GroupIcon />, path: '/admin/groups' },
       ]
     },
+    { text: 'Approvals', icon: <ApprovalIcon />, path: '/approvals' },
   ]
 
   const drawer = (
@@ -217,7 +210,11 @@ const Layout = ({ children }: LayoutProps) => {
                   unmountOnExit
                 >
                   <List component="div" disablePadding>
-                    {item.submenu.map((subItem: any) => {
+                    {item.submenu.map((subItem: any, subIndex: number) => {
+                      if (subItem.divider) {
+                        return <Divider key={`submenu-divider-${subIndex}`} sx={{ my: 1, ml: 6 }} />
+                      }
+
                       const isSubSelected = location.pathname === subItem.path || 
                                           (subItem.path.includes('?tab=') && location.pathname === '/hypercare' && location.search === subItem.path.split('?')[1])
                       
