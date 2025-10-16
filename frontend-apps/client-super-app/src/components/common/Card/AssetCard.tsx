@@ -22,14 +22,23 @@ interface AssetCardProps {
   asset: Asset;
   onAddToWatchlist?: () => void;
   isInWatchlist?: boolean;
+  onInvest?: () => void;
 }
 
-function AssetCard({ asset, onAddToWatchlist, isInWatchlist = false }: AssetCardProps) {
+function AssetCard({ asset, onAddToWatchlist, isInWatchlist = false, onInvest }: AssetCardProps) {
   const navigate = useNavigate();
   const [buyModalOpen, setBuyModalOpen] = useState(false);
 
   const handleViewDetails = () => {
     navigate(`/assets/${asset.id}`);
+  };
+
+  const handleInvestClick = () => {
+    if (onInvest) {
+      onInvest();
+    } else {
+      setBuyModalOpen(true);
+    }
   };
 
   const priceChange = 0; // TODO: Calculate from asset data
@@ -113,10 +122,10 @@ function AssetCard({ asset, onAddToWatchlist, isInWatchlist = false }: AssetCard
           fullWidth
           variant="contained"
           startIcon={<ShoppingCart />}
-          onClick={() => setBuyModalOpen(true)}
+          onClick={handleInvestClick}
           sx={{ fontWeight: 600 }}
         >
-          Buy
+          Invest
         </Button>
         <Button
           fullWidth

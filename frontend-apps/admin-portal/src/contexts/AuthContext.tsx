@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
-  inGroup: (groupCode: string) => boolean;
+  hasRole: (roleName: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,8 +65,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return authService.hasAnyPermission(permissions);
   };
 
-  const inGroup = (groupCode: string): boolean => {
-    return authService.inGroup(groupCode);
+  const hasRole = (roleName: string): boolean => {
+    return authService.hasRole(roleName);
   };
 
   const value = {
@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isAuthenticated: !!user,
     hasPermission,
     hasAnyPermission,
-    inGroup
+    hasRole
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

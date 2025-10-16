@@ -2,38 +2,45 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 export interface LoginCredentials {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface User {
   id: string;
-  username: string;
   email: string;
-  first_name: string;
-  last_name: string;
-  phone_number?: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  tenantId: string;
   status: string;
-  groups: UserGroup[];
-  permissions: Permission[];
+  kycStatus: string;
+  roles: Role[];
+  lastLoginAt?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface UserGroup {
+export interface Role {
   id: string;
   name: string;
-  code: string;
+  description: string;
+  permissions: Permission[];
 }
 
 export interface Permission {
   id: string;
   name: string;
-  code: string;
-  module: string;
+  description: string;
+  resource: string;
   action: string;
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
   user: User;
 }
 
@@ -52,7 +59,7 @@ export const authService = {
       );
       
       // Store token and user in localStorage
-      localStorage.setItem(TOKEN_KEY, response.data.token);
+      localStorage.setItem(TOKEN_KEY, response.data.accessToken);
       localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
       
       return response.data;
@@ -62,8 +69,8 @@ export const authService = {
         throw new Error(
           '🔴 Cannot connect to backend services.\n\n' +
           'Please ensure the following are running:\n' +
-          '• Admin BFF (port 9001)\n' +
-          '• Marketplace API (port 8085)\n\n' +
+          '• Identity Service (port 8081)\n' +
+          '• PostgreSQL (port 5432)\n\n' +
           'Start services with: ./START-COMPLETE.sh'
         );
       }
@@ -154,28 +161,31 @@ export const authService = {
   /**
    * Check if user has specific permission
    */
-  hasPermission: (permissionCode: string): boolean => {
+  hasPermission: (permissionName: string): boolean => {
     const user = authService.getUser();
     if (!user) return false;
     
-    return user.permissions.some(p => p.code === permissionCode);
+    // Check all roles for the permission
+    return user.roles.some(role => 
+      role.permissions.some(p => p.name === permissionName)
+    );
   },
 
   /**
    * Check if user has any of the specified permissions
    */
-  hasAnyPermission: (permissionCodes: string[]): boolean => {
-    return permissionCodes.some(code => authService.hasPermission(code));
+  hasAnyPermission: (permissionNames: string[]): boolean => {
+    return permissionNames.some(name => authService.hasPermission(name));
   },
 
   /**
-   * Check if user belongs to a specific group
+   * Check if user has a specific role
    */
-  inGroup: (groupCode: string): boolean => {
+  hasRole: (roleName: string): boolean => {
     const user = authService.getUser();
     if (!user) return false;
     
-    return user.groups.some(g => g.code === groupCode);
+    return user.roles.some(r => r.name === roleName);
   },
 
   /**

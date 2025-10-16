@@ -34,6 +34,13 @@ const config = {
 // Create connection pool
 const pool = new Pool(config);
 
+// Debug: Log the actual configuration being used
+console.log('🔍 PostgreSQL Pool Configuration:');
+console.log('   Host:', config.host);
+console.log('   Port:', config.port);
+console.log('   Database:', config.database);
+console.log('   User:', config.user);
+
 // Handle pool errors
 pool.on('error', (err, client) => {
   console.error('❌ Unexpected error on idle client', err);
@@ -43,6 +50,13 @@ pool.on('error', (err, client) => {
 // Log successful connection
 pool.on('connect', (client) => {
   console.log('✅ New client connected to database');
+  // Query and log the actual database we're connected to
+  client.query('SELECT current_database(), current_schema()', (err, result) => {
+    if (!err && result.rows[0]) {
+      console.log('   🔍 Connected to:', result.rows[0].current_database);
+      console.log('   🔍 Schema:', result.rows[0].current_schema);
+    }
+  });
 });
 
 // Log client removal

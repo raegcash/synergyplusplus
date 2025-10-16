@@ -11,9 +11,15 @@ import {
 import { useProducts } from '../../hooks/useProducts';
 import { useAssets } from '../../hooks/useAssets';
 import AssetCard from '../../components/common/Card/AssetCard';
+import InvestmentModal from '../../components/InvestmentModal';
 
 function Marketplace() {
   const [tabValue, setTabValue] = useState(0);
+  const [investmentModalOpen, setInvestmentModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
+  
+  // Get customer ID from localStorage or auth context
+  const customerId = localStorage.getItem('customerId') || '0ee56e9d-37f4-4a6f-a4f7-2dab64a9f5c9';
 
   // Fetch products and assets
   const {
@@ -58,6 +64,18 @@ function Marketplace() {
   };
 
   const filteredAssets = getFilteredAssets();
+
+  // Handle invest button click
+  const handleInvestClick = (asset: any) => {
+    setSelectedAsset(asset);
+    setInvestmentModalOpen(true);
+  };
+
+  // Handle investment success
+  const handleInvestmentSuccess = (investment: any) => {
+    console.log('Investment created:', investment);
+    // You can add a toast notification here or refresh the portfolio
+  };
 
   return (
     <Box>
@@ -122,7 +140,10 @@ function Marketplace() {
                     minWidth: '300px',
                   }}
                 >
-                  <AssetCard asset={asset} />
+                  <AssetCard 
+                    asset={asset} 
+                    onInvest={() => handleInvestClick(asset)}
+                  />
                 </Box>
               ))
             ) : (
@@ -138,6 +159,15 @@ function Marketplace() {
           </Box>
         </>
       )}
+
+      {/* Investment Modal */}
+      <InvestmentModal
+        open={investmentModalOpen}
+        onClose={() => setInvestmentModalOpen(false)}
+        asset={selectedAsset}
+        customerId={customerId}
+        onSuccess={handleInvestmentSuccess}
+      />
     </Box>
   );
 }

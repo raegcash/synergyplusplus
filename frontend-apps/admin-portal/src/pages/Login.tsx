@@ -17,7 +17,7 @@ import { ServiceHealthCheck } from '../components/ServiceHealthCheck';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login({ username, password });
+      await login({ email, password });
     } catch (err: any) {
       // Use improved error messages from auth service
       setError(err.message || err.response?.data?.error || 'Login failed. Please try again.');
@@ -75,9 +75,10 @@ export const Login: React.FC = () => {
               sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
             >
               <TextField
-                label="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 fullWidth
                 required
                 autoFocus
@@ -123,7 +124,7 @@ export const Login: React.FC = () => {
                 <strong>Default Credentials:</strong>
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Username: <strong>admin</strong>
+                Email: <strong>admin@superapp.com</strong>
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
                 Password: <strong>Admin@123</strong>

@@ -1,3 +1,6 @@
+// Load environment variables FIRST before any other modules
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -141,6 +144,16 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
+// Attach database to request
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
+
+// Investment routes (Enterprise-grade)
+const investmentRoutes = require('./routes/investments');
+app.use('/api/v1/investments', investmentRoutes);
+
 // Swagger UI - Complete API Documentation
 app.use('/api/marketplace/docs', swaggerUi.serve);
 app.get('/api/marketplace/docs', (req, res, next) => {
@@ -194,7 +207,6 @@ app.get('/api/marketplace/swagger/client.json', (req, res) => {
 });
 
 // Database setup - PostgreSQL
-require('dotenv').config();
 
 // Test database connection on startup
 (async () => {
