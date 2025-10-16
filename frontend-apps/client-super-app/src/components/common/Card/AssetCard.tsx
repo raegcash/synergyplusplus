@@ -2,6 +2,7 @@
  * Asset Card Component
  */
 
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -12,8 +13,9 @@ import {
   Box,
   IconButton,
 } from '@mui/material';
-import { TrendingUp, TrendingDown, Star, StarBorder } from '@mui/icons-material';
+import { TrendingUp, TrendingDown, Star, StarBorder, ShoppingCart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import BuyAssetModal from '../Modal/BuyAssetModal';
 import type { Asset } from '../../../types/api.types';
 
 interface AssetCardProps {
@@ -24,6 +26,7 @@ interface AssetCardProps {
 
 function AssetCard({ asset, onAddToWatchlist, isInWatchlist = false }: AssetCardProps) {
   const navigate = useNavigate();
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
 
   const handleViewDetails = () => {
     navigate(`/assets/${asset.id}`);
@@ -105,19 +108,36 @@ function AssetCard({ asset, onAddToWatchlist, isInWatchlist = false }: AssetCard
         </Typography>
       </CardContent>
 
-      <CardActions sx={{ p: 2, pt: 0 }}>
+      <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
         <Button
           fullWidth
           variant="contained"
+          startIcon={<ShoppingCart />}
+          onClick={() => setBuyModalOpen(true)}
+          sx={{ fontWeight: 600 }}
+        >
+          Buy
+        </Button>
+        <Button
+          fullWidth
+          variant="outlined"
           onClick={handleViewDetails}
           sx={{ fontWeight: 600 }}
         >
-          View Details
+          Details
         </Button>
       </CardActions>
+
+      {/* Buy Modal */}
+      <BuyAssetModal
+        open={buyModalOpen}
+        onClose={() => setBuyModalOpen(false)}
+        asset={asset}
+      />
     </Card>
   );
 }
 
 export default AssetCard;
+
 

@@ -241,3 +241,4 @@ export interface UserPreferences {
   updatedAt: string;
 }
 
+

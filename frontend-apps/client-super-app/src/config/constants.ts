@@ -5,7 +5,8 @@
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Synergy++ Super App';
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '1.0.0';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085';
+// Use relative path for API calls - Vite proxy will handle the routing
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 export const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
 // Local Storage Keys
@@ -101,4 +102,5 @@ export const KYC_STATUS = {
   REJECTED: 'REJECTED',
   EXPIRED: 'EXPIRED',
 } as const;
+
 

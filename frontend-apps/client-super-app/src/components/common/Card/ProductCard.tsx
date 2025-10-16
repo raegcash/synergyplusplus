@@ -12,7 +12,6 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import { TrendingUp, TrendingDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../../types/api.types';
 
@@ -97,7 +96,7 @@ function ProductCard({ product }: ProductCardProps) {
               Min Investment
             </Typography>
             <Typography variant="body2" fontWeight={600}>
-              ₱{product.minimumInvestment?.toLocaleString() || '0'}
+              ₱{product.minInvestment?.toLocaleString() || '0'}
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
@@ -105,7 +104,7 @@ function ProductCard({ product }: ProductCardProps) {
               Assets
             </Typography>
             <Typography variant="body2" fontWeight={600}>
-              {product.assetCount || 0}
+              {product.assetsCount || 0}
             </Typography>
           </Box>
         </Box>

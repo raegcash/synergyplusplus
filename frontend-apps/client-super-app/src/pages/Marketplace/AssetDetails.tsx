@@ -6,16 +6,16 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   Chip,
   CircularProgress,
   Alert,
   Divider,
   IconButton,
 } from '@mui/material';
-import { ArrowBack, Star, StarBorder, TrendingUp, TrendingDown } from '@mui/icons-material';
+import { ArrowBack, Star, StarBorder, TrendingUp, TrendingDown, ShowChart, Security, Timeline } from '@mui/icons-material';
 import { useAsset } from '../../hooks/useAssets';
 import BuyAssetModal from '../../components/common/Modal/BuyAssetModal';
+import AssetChart from '../../components/features/AssetChart';
 
 function AssetDetails() {
   const { assetId } = useParams<{ assetId: string }>();
@@ -122,32 +122,32 @@ function AssetDetails() {
 
           <Divider sx={{ my: 3 }} />
 
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+            <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
               <Typography variant="body2" color="text.secondary">
                 Asset Type
               </Typography>
               <Typography variant="h6" fontWeight={600}>
                 {asset.assetType}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
               <Typography variant="body2" color="text.secondary">
                 Symbol
               </Typography>
               <Typography variant="h6" fontWeight={600}>
                 {asset.symbol}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
               <Typography variant="body2" color="text.secondary">
                 Current Price
               </Typography>
               <Typography variant="h6" fontWeight={600}>
                 ₱{asset.currentPrice?.toLocaleString() || '0.00'}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </Box>
+            <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
               <Typography variant="body2" color="text.secondary">
                 Status
               </Typography>
@@ -156,15 +156,24 @@ function AssetDetails() {
                 color={asset.status === 'ACTIVE' ? 'success' : 'default'}
                 size="small"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
-      {/* Asset Details */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card>
+      {/* Price Chart */}
+      <Box sx={{ mb: 3 }}>
+        <AssetChart
+          assetId={asset.id}
+          assetName={asset.name}
+        />
+      </Box>
+
+      {/* Asset Details Grid */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+        {/* About Section */}
+        <Box sx={{ flex: "1 1 calc(66.666% - 12px)", minWidth: "500px" }}>
+          <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} gutterBottom>
                 About {asset.name}
@@ -174,35 +183,143 @@ function AssetDetails() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
 
-        <Grid item xs={12} md={4}>
+          {/* Performance Metrics */}
           <Card>
             <CardContent>
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Quick Stats
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Timeline color="primary" />
+                <Typography variant="h6" fontWeight={600}>
+                  Performance Metrics
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "200px" }}>
+                  <Typography variant="caption" color="text.secondary">
+                    1 Month Return
+                  </Typography>
+                  <Typography variant="h6" color="success.main" fontWeight={600}>
+                    +5.2%
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "200px" }}>
+                  <Typography variant="caption" color="text.secondary">
+                    3 Month Return
+                  </Typography>
+                  <Typography variant="h6" color="success.main" fontWeight={600}>
+                    +12.8%
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "200px" }}>
+                  <Typography variant="caption" color="text.secondary">
+                    6 Month Return
+                  </Typography>
+                  <Typography variant="h6" color="success.main" fontWeight={600}>
+                    +18.5%
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "200px" }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Year to Date
+                  </Typography>
+                  <Typography variant="h6" color="success.main" fontWeight={600}>
+                    +24.3%
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Right Sidebar */}
+        <Box sx={{ flex: "1 1 calc(33.333% - 20px)", minWidth: "300px" }}>
+          {/* Quick Stats */}
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <ShowChart color="primary" />
+                <Typography variant="h6" fontWeight={600}>
+                  Quick Stats
+                </Typography>
+              </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary">
                     Current Price
                   </Typography>
-                  <Typography variant="h6">
+                  <Typography variant="h6" fontWeight={600}>
                     ₱{asset.currentPrice?.toLocaleString() || '0.00'}
                   </Typography>
                 </Box>
                 <Divider />
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary">
+                    Min Investment
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    ₱{asset.minInvestment?.toLocaleString() || '1,000'}
+                  </Typography>
+                </Box>
+                <Divider />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
                     Asset Type
                   </Typography>
-                  <Typography variant="body1">{asset.assetType}</Typography>
+                  <Chip label={asset.assetType} color="primary" size="small" />
                 </Box>
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+
+          {/* Risk Profile */}
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Security color="primary" />
+                <Typography variant="h6" fontWeight={600}>
+                  Risk Profile
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Risk Level
+                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    <Chip 
+                      label={asset.riskLevel || 'MEDIUM'} 
+                      color={
+                        asset.riskLevel === 'LOW' ? 'success' :
+                        asset.riskLevel === 'HIGH' ? 'error' :
+                        'warning'
+                      }
+                      size="small"
+                    />
+                  </Box>
+                </Box>
+                <Divider />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Volatility
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    Moderate
+                  </Typography>
+                </Box>
+                <Divider />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Recommended For
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Long-term investors seeking steady growth
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
 
       {/* Buy Modal */}
       {asset && (

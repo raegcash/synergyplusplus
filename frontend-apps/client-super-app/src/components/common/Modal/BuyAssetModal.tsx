@@ -78,10 +78,10 @@ function BuyAssetModal({ open, onClose, asset }: BuyAssetModalProps) {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Typography variant="h6" fontWeight={700}>
+        <Typography variant="h6" component="div" fontWeight={700}>
           Buy {asset.name}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" component="div" color="text.secondary">
           {asset.symbol} • {asset.assetType}
         </Typography>
       </DialogTitle>
@@ -167,4 +167,5 @@ function BuyAssetModal({ open, onClose, asset }: BuyAssetModalProps) {
 }
 
 export default BuyAssetModal;
+
 

@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -13,8 +13,8 @@ import {
   Paper,
   Chip,
   CircularProgress,
-  Alert,
   Button,
+  ButtonGroup,
 } from '@mui/material';
 import {
   TrendingUp,
@@ -22,12 +22,20 @@ import {
   AccountBalance,
   ShowChart,
   Refresh,
+  Sell,
+  Visibility,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioSummary, usePortfolioHoldings } from '../../hooks/usePortfolio';
+import SellAssetModal from '../../components/common/Modal/SellAssetModal';
+import type { Asset } from '../../types/api.types';
 
 function Portfolio() {
   const navigate = useNavigate();
+  const [sellModalOpen, setSellModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedHolding, setSelectedHolding] = useState<any>(null);
+  
   const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } = usePortfolioSummary();
   const { data: holdings, isLoading: holdingsLoading, refetch: refetchHoldings } = usePortfolioHoldings();
 
@@ -45,6 +53,31 @@ function Portfolio() {
   const handleRefresh = () => {
     refetchSummary();
     refetchHoldings();
+  };
+
+  const handleSellClick = (holding: any) => {
+    // Convert holding to Asset format for the modal
+    const asset: Asset = {
+      id: holding.assetId,
+      productId: '', // Not needed for sell
+      partnerId: '', // Not needed for sell
+      name: holding.assetName,
+      symbol: holding.assetSymbol,
+      assetCode: holding.assetSymbol,
+      assetType: holding.assetType,
+      description: '',
+      currentPrice: holding.currentPrice || 0,
+      priceCurrency: 'PHP',
+      minInvestment: 0,
+      maxInvestment: 0,
+      status: 'ACTIVE',
+      createdAt: '',
+      updatedAt: '',
+    };
+    
+    setSelectedAsset(asset);
+    setSelectedHolding(holding);
+    setSellModalOpen(true);
   };
 
   if (isLoading) {
@@ -77,8 +110,8 @@ function Portfolio() {
       </Box>
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }} sx={{ mb: 4 }}>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -88,10 +121,10 @@ function Portfolio() {
                 <AccountBalance sx={{ color: 'primary.main' }} />
               </Box>
               <Typography variant="h5" fontWeight={700}>
-                {formatCurrency(summary?.totalValue || 0)}
+                {formatCurrency(summary?.totalPortfolioValue || 0)}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-                {(summary?.totalGainLoss || 0) >= 0 ? (
+                {(summary?.totalReturns || 0) >= 0 ? (
                   <TrendingUp sx={{ fontSize: 18, color: 'success.main' }} />
                 ) : (
                   <TrendingDown sx={{ fontSize: 18, color: 'error.main' }} />
@@ -99,17 +132,17 @@ function Portfolio() {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: (summary?.totalGainLoss || 0) >= 0 ? 'success.main' : 'error.main',
+                    color: (summary?.totalReturns || 0) >= 0 ? 'success.main' : 'error.main',
                   }}
                 >
-                  {formatPercentage(summary?.totalGainLossPercent || 0)}
+                  {formatPercentage(summary?.totalReturnsPercent || 0)}
                 </Typography>
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -119,20 +152,20 @@ function Portfolio() {
                 <ShowChart sx={{ color: 'primary.main' }} />
               </Box>
               <Typography variant="h5" fontWeight={700}>
-                {formatCurrency(summary?.totalInvested || 0)}
+                {formatCurrency(summary?.totalInvestments || 0)}
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography color="text.secondary" variant="body2">
                   Total Gain/Loss
                 </Typography>
-                {(summary?.totalGainLoss || 0) >= 0 ? (
+                {(summary?.totalReturns || 0) >= 0 ? (
                   <TrendingUp sx={{ color: 'success.main' }} />
                 ) : (
                   <TrendingDown sx={{ color: 'error.main' }} />
@@ -142,16 +175,16 @@ function Portfolio() {
                 variant="h5"
                 fontWeight={700}
                 sx={{
-                  color: (summary?.totalGainLoss || 0) >= 0 ? 'success.main' : 'error.main',
+                  color: (summary?.totalReturns || 0) >= 0 ? 'success.main' : 'error.main',
                 }}
               >
-                {formatCurrency(summary?.totalGainLoss || 0)}
+                {formatCurrency(summary?.totalReturns || 0)}
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -165,8 +198,8 @@ function Portfolio() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Holdings Table */}
       <Card>
@@ -238,13 +271,21 @@ function Portfolio() {
                           </Box>
                         </TableCell>
                         <TableCell align="center">
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => navigate(`/assets/${holding.assetId}`)}
-                          >
-                            View
-                          </Button>
+                          <ButtonGroup size="small" variant="outlined">
+                            <Button
+                              startIcon={<Visibility />}
+                              onClick={() => navigate(`/assets/${holding.assetId}`)}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              color="error"
+                              startIcon={<Sell />}
+                              onClick={() => handleSellClick(holding)}
+                            >
+                              Sell
+                            </Button>
+                          </ButtonGroup>
                         </TableCell>
                       </TableRow>
                     );
@@ -270,6 +311,21 @@ function Portfolio() {
           )}
         </CardContent>
       </Card>
+
+      {/* Sell Asset Modal */}
+      {selectedAsset && selectedHolding && (
+        <SellAssetModal
+          open={sellModalOpen}
+          onClose={() => {
+            setSellModalOpen(false);
+            setSelectedAsset(null);
+            setSelectedHolding(null);
+          }}
+          asset={selectedAsset}
+          availableQuantity={selectedHolding.quantity || 0}
+          averagePrice={selectedHolding.avgPrice || 0}
+        />
+      )}
     </Box>
   );
 }

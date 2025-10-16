@@ -2,7 +2,8 @@
  * Auth Redux Slice
  */
 
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '../../services/api/auth.api';
 import { STORAGE_KEYS } from '../../config/constants';
 import type { User, LoginRequest, RegisterRequest } from '../../types/api.types';
@@ -42,7 +43,7 @@ export const register = createAsyncThunk(
   async (data: RegisterRequest, { rejectWithValue }) => {
     try {
       const response = await authApi.register(data);
-      return response.data.user;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.error?.message || 'Registration failed');
     }
@@ -71,11 +72,9 @@ export const loadUserFromStorage = createAsyncThunk(
         throw new Error('No user data found');
       }
 
-      const user = JSON.parse(userData);
-
       // Validate token by fetching current user
       const response = await authApi.getCurrentUser();
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       // Clear invalid data
       localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);

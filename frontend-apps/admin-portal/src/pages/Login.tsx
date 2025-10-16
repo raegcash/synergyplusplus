@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, AdminPanelSettings } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { ServiceHealthCheck } from '../components/ServiceHealthCheck';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -30,23 +31,26 @@ export const Login: React.FC = () => {
     try {
       await login({ username, password });
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      // Use improved error messages from auth service
+      setError(err.message || err.response?.data?.error || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-      }}
-    >
-      <Container maxWidth="sm">
+    <>
+      <ServiceHealthCheck autoCheck={true} />
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        }}
+      >
+        <Container maxWidth="sm">
         <Card elevation={10} sx={{ borderRadius: 3 }}>
           <CardContent sx={{ p: 4 }}>
             <Box sx={{ textAlign: 'center', mb: 4 }}>
@@ -129,6 +133,7 @@ export const Login: React.FC = () => {
         </Card>
       </Container>
     </Box>
+    </>
   );
 };
 

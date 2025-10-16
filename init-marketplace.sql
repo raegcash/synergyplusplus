@@ -9,3 +9,4 @@
 SELECT 'PostgreSQL database initialized successfully!' AS status;
 SELECT version() AS postgresql_version;
 
+

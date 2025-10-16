@@ -45,16 +45,41 @@ export const authService = {
    * Login with username and password
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await axios.post<AuthResponse>(
-      `${API_BASE_URL}/auth/login`,
-      credentials
-    );
-    
-    // Store token and user in localStorage
-    localStorage.setItem(TOKEN_KEY, response.data.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
-    
-    return response.data;
+    try {
+      const response = await axios.post<AuthResponse>(
+        `${API_BASE_URL}/auth/login`,
+        credentials
+      );
+      
+      // Store token and user in localStorage
+      localStorage.setItem(TOKEN_KEY, response.data.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
+      
+      return response.data;
+    } catch (error: any) {
+      // Handle connection refused errors
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        throw new Error(
+          '🔴 Cannot connect to backend services.\n\n' +
+          'Please ensure the following are running:\n' +
+          '• Admin BFF (port 9001)\n' +
+          '• Marketplace API (port 8085)\n\n' +
+          'Start services with: ./START-COMPLETE.sh'
+        );
+      }
+      
+      // Handle 401 unauthorized
+      if (error.response?.status === 401) {
+        throw new Error('Invalid username or password');
+      }
+      
+      // Handle other errors
+      throw new Error(
+        error.response?.data?.message || 
+        error.message || 
+        'Login failed. Please try again.'
+      );
+    }
   },
 
   /**

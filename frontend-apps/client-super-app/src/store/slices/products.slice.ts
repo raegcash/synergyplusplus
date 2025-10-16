@@ -2,7 +2,8 @@
  * Products Redux Slice
  */
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Product, Asset, Partner } from '../../types/api.types';
 
 interface ProductsState {

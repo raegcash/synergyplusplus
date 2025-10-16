@@ -10,19 +10,29 @@ export const assetsApi = {
    * Get all assets
    */
   getAssets: async (
-    params?: PaginationParams & { productId?: string; partnerId?: string; assetType?: string }
+    params?: PaginationParams & { productId?: string; partnerId?: string; assetType?: string; status?: string }
   ) => {
-    const response = await apiClient.get<PaginatedResponse<Asset>>('/api/v1/assets', {
+    const response = await apiClient.get<Asset[]>('/api/marketplace/assets', {
       params,
     });
-    return response.data;
+    // Backend returns plain array, so wrap it in expected format
+    return {
+      success: true,
+      data: response.data,
+      pagination: {
+        page: 1,
+        limit: response.data.length,
+        total: response.data.length,
+        totalPages: 1,
+      }
+    };
   },
 
   /**
    * Get asset by ID
    */
   getAsset: async (id: string): Promise<ApiResponse<Asset>> => {
-    const response = await apiClient.get<ApiResponse<Asset>>(`/api/v1/assets/${id}`);
+    const response = await apiClient.get<ApiResponse<Asset>>(`/api/marketplace/assets/${id}`);
     return response.data;
   },
 
@@ -47,7 +57,7 @@ export const assetsApi = {
     assetId: string,
     params?: { startDate?: string; endDate?: string }
   ) => {
-    const response = await apiClient.get(`/api/v1/assets/${assetId}/price-history`, {
+    const response = await apiClient.get(`/api/marketplace/assets/${assetId}/price-history`, {
       params,
     });
     return response.data;
@@ -57,7 +67,7 @@ export const assetsApi = {
    * Search assets
    */
   searchAssets: async (query: string, params?: PaginationParams) => {
-    const response = await apiClient.get<PaginatedResponse<Asset>>('/api/v1/assets/search', {
+    const response = await apiClient.get<PaginatedResponse<Asset>>('/api/marketplace/assets/search', {
       params: { ...params, q: query },
     });
     return response.data;
@@ -65,4 +75,5 @@ export const assetsApi = {
 };
 
 export default assetsApi;
+
 

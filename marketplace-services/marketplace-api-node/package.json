@@ -11,7 +11,9 @@
     "test:api": "node tests/api-test-suite.js",
     "init-schema": "node scripts/init-schema.js",
     "reset-password": "bash scripts/reset-admin-password.sh",
-    "migrate:from-sqlite": "node scripts/migrate-sqlite-to-postgres.js"
+    "migrate:from-sqlite": "node scripts/migrate-sqlite-to-postgres.js",
+    "seed": "node scripts/seed-data.js",
+    "seed:clean": "node scripts/seed-clean.js"
   },
   "keywords": [
     "fintech",

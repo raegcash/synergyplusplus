@@ -17,7 +17,8 @@ interface ImportMeta {
 }
 
 export const env = {
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085',
+  // Use relative path - Vite proxy will handle routing to backend
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '',
   apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
   appName: import.meta.env.VITE_APP_NAME || 'Synergy++ Super App',
   appVersion: import.meta.env.VITE_APP_VERSION || '1.0.0',
@@ -29,4 +30,5 @@ export const env = {
 } as const;
 
 export default env;
+
 

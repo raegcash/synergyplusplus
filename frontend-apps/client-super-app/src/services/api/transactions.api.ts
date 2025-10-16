@@ -16,7 +16,7 @@ export const transactionsApi = {
     status?: string;
   }): Promise<PaginatedResponse<Transaction>> => {
     const response = await apiClient.get<PaginatedResponse<Transaction>>(
-      '/api/v1/transactions/history',
+      '/api/marketplace/transactions/history',
       { params }
     );
     return response.data;
@@ -27,7 +27,7 @@ export const transactionsApi = {
    */
   getTransaction: async (transactionId: string): Promise<ApiResponse<Transaction>> => {
     const response = await apiClient.get<ApiResponse<Transaction>>(
-      `/api/v1/transactions/${transactionId}`
+      `/api/marketplace/transactions/${transactionId}`
     );
     return response.data;
   },
@@ -42,7 +42,7 @@ export const transactionsApi = {
     quantity?: number;
   }): Promise<ApiResponse<Transaction>> => {
     const response = await apiClient.post<ApiResponse<Transaction>>(
-      '/api/v1/transactions',
+      '/api/marketplace/transactions',
       data
     );
     return response.data;
@@ -57,7 +57,7 @@ export const transactionsApi = {
     quantity: number;
   }): Promise<ApiResponse<Transaction>> => {
     const response = await apiClient.post<ApiResponse<Transaction>>(
-      '/api/v1/transactions/sell',
+      '/api/marketplace/transactions/sell',
       data
     );
     return response.data;
@@ -68,11 +68,12 @@ export const transactionsApi = {
    */
   cancelTransaction: async (transactionId: string): Promise<ApiResponse<{ message: string }>> => {
     const response = await apiClient.post<ApiResponse<{ message: string }>>(
-      `/api/v1/transactions/${transactionId}/cancel`
+      `/api/marketplace/transactions/${transactionId}/cancel`
     );
     return response.data;
   },
 };
 
 export default transactionsApi;
+
 

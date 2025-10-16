@@ -621,6 +621,23 @@ export const productsAPI = {
       return product
     }
   },
+
+  // Get hypercare-eligible products (ACTIVE with ACTIVE partners having ACTIVE assets)
+  getHypercareEligible: async () => {
+    if (USE_MOCK_DATA) {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      // Filter mock data to simulate hypercare criteria
+      return mockProductsStore.filter(p => p.status === 'ACTIVE' && p.assetsCount > 0)
+    }
+    
+    try {
+      const response = await api.get<Product[]>('/products/hypercare')
+      return response.data
+    } catch (error) {
+      console.warn('API call failed for hypercare products, using filtered mock data:', error)
+      return mockProductsStore.filter(p => p.status === 'ACTIVE' && p.assetsCount > 0)
+    }
+  },
 }
 
 export default productsAPI

@@ -44,6 +44,7 @@ import {
   People as CustomersIcon,
 } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
+import { ServiceStatusIndicator } from './ServiceHealthCheck'
 
 const drawerWidth = 240
 
@@ -296,7 +297,9 @@ const Layout = ({ children }: LayoutProps) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
             {location.pathname.includes('hypercare') ? 'Hypercare Management' : 'Dashboard'}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <ServiceStatusIndicator />
+            <Divider orientation="vertical" flexItem />
             <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.875rem' }}>
               {user?.first_name?.charAt(0) || 'A'}
             </Avatar>

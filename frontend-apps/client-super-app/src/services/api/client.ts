@@ -2,7 +2,8 @@
  * API Client - Axios Instance with Interceptors
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import { API_BASE_URL, API_TIMEOUT, STORAGE_KEYS } from '../../config/constants';
 
 class ApiClient {
@@ -17,7 +18,9 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true,
+      // Only use withCredentials if API_BASE_URL is set (production)
+      // In development, Vite proxy handles this
+      withCredentials: !!API_BASE_URL,
     });
 
     this.setupInterceptors();

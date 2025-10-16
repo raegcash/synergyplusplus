@@ -11,7 +11,6 @@ import {
   IconButton,
   Alert,
   CircularProgress,
-  Grid,
 } from '@mui/material';
 import { Visibility, VisibilityOff, TrendingUp } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -119,92 +118,86 @@ function Register() {
 
           {/* Register Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  {...register('firstName')}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName?.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  {...register('lastName')}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName?.message}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  autoComplete="email"
-                  {...register('email')}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Phone Number (Optional)"
-                  {...register('phoneNumber')}
-                  error={!!errors.phoneNumber}
-                  helperText={errors.phoneNumber?.message}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  {...register('password')}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Confirm Password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  {...register('confirmPassword')}
-                  error={!!errors.confirmPassword}
-                  helperText={errors.confirmPassword?.message}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          edge="end"
-                        >
-                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </Grid>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    {...register('firstName')}
+                    error={!!errors.firstName}
+                    helperText={errors.firstName?.message}
+                  />
+                </Box>
+                <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    {...register('lastName')}
+                    error={!!errors.lastName}
+                    helperText={errors.lastName?.message}
+                  />
+                </Box>
+              </Box>
+              <TextField
+                fullWidth
+                label="Email Address"
+                type="email"
+                autoComplete="email"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+              <TextField
+                fullWidth
+                label="Phone Number (Optional)"
+                {...register('phoneNumber')}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber?.message}
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                {...register('confirmPassword')}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
 
             <Button
               type="submit"
@@ -252,4 +245,5 @@ function Register() {
 }
 
 export default Register;
+
 

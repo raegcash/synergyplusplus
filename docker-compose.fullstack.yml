@@ -1,0 +1,285 @@
+version: '3.8'
+
+services:
+  # ========================================
+  # INFRASTRUCTURE
+  # ========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: superapp-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: identity_db,ledger_db,payment_rail_db,risk_monitor_db,investment_db,lending_db,savings_db,product_catalog_db,partner_management_db,superapp_marketplace
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: superapp-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - superapp-network
+
+  # ========================================
+  # CORE SERVICES
+  # ========================================
+  identity-service:
+    build: ./core-services/identity-service
+    container_name: identity-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  ledger-service:
+    build: ./core-services/ledger-service
+    container_name: ledger-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  # ========================================
+  # PRODUCT SERVICES
+  # ========================================
+  investment-service:
+    build: ./product-services/investment-service
+    container_name: investment-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  lending-service:
+    build: ./product-services/lending-service
+    container_name: lending-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  savings-service:
+    build: ./product-services/savings-service
+    container_name: savings-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8086:8086"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  # ========================================
+  # MARKETPLACE SERVICES
+  # ========================================
+  product-catalog-service:
+    build: ./marketplace-services/product-catalog-service
+    container_name: product-catalog-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  partner-management-service:
+    build: ./marketplace-services/partner-management-service
+    container_name: partner-management-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8091:8091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - superapp-network
+
+  # ========================================
+  # BFF LAYER
+  # ========================================
+  admin-bff:
+    build: ./bff-layer/admin-bff
+    container_name: admin-bff
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9001:9001"
+    depends_on:
+      - identity-service
+      - partner-management-service
+      - product-catalog-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - superapp-network
+
+  client-bff:
+    build: ./bff-layer/client-bff
+    container_name: client-bff
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9002:9002"
+    depends_on:
+      - identity-service
+      - investment-service
+      - lending-service
+      - savings-service
+      - product-catalog-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - superapp-network
+
+  # ========================================
+  # FRONTEND APPLICATIONS
+  # ========================================
+  admin-portal:
+    build: 
+      context: ./frontend-apps/admin-portal
+      dockerfile: Dockerfile
+    container_name: admin-portal
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:9001
+    depends_on:
+      - admin-bff
+    networks:
+      - superapp-network
+
+  client-super-app:
+    build:
+      context: ./frontend-apps/client-super-app
+      dockerfile: Dockerfile
+    container_name: client-super-app
+    ports:
+      - "5174:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:9002
+    depends_on:
+      - client-bff
+    networks:
+      - superapp-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  superapp-network:
+    driver: bridge
+

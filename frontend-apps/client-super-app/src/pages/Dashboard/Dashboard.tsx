@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Grid,
   Card,
   CardContent,
   Typography,
   Button,
   CircularProgress,
   Alert,
-  Chip,
+  Stack,
 } from '@mui/material';
 import {
   TrendingUp,
@@ -98,8 +97,12 @@ function Dashboard() {
       </Box>
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={3}
+        sx={{ mb: 4, flexWrap: 'wrap' }}
+      >
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
           <SummaryCard
             title="Total Portfolio Value"
             value="₱0.00"
@@ -107,8 +110,8 @@ function Dashboard() {
             isPositive={true}
             icon={<AccountBalance />}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
           <SummaryCard
             title="Today's Gain/Loss"
             value="₱0.00"
@@ -116,22 +119,22 @@ function Dashboard() {
             isPositive={true}
             icon={<TrendingUp />}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
           <SummaryCard
             title="Total Investments"
             value="₱0.00"
             icon={<AccountBalance />}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
           <SummaryCard
             title="Available Cash"
             value="₱0.00"
             icon={<AccountBalance />}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Stack>
 
       {/* Quick Actions */}
       <Card sx={{ mb: 4 }}>

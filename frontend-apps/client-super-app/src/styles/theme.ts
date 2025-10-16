@@ -2,7 +2,8 @@
  * MUI Theme Configuration
  */
 
-import { createTheme, Theme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 
 // Color Palette
 const colors = {

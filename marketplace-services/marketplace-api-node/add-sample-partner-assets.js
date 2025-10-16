@@ -377,3 +377,4 @@ function createApproval(itemType, itemId, submittedBy) {
 // Run the script
 addSampleAssets();
 
+

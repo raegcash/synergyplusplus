@@ -58,8 +58,8 @@ const EligibilityManagement = () => {
   })
 
   const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => productsAPI.getAll(),
+    queryKey: ['hypercare-products'],
+    queryFn: () => productsAPI.getHypercareEligible(),
   })
 
   const { data: dataPoints = [] } = useQuery({

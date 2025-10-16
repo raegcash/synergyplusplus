@@ -11,7 +11,7 @@ export const portfolioApi = {
    */
   getSummary: async (): Promise<ApiResponse<PortfolioSummary>> => {
     const response = await apiClient.get<ApiResponse<PortfolioSummary>>(
-      '/api/v1/client/portfolio/summary'
+      '/api/marketplace/client/portfolio/summary'
     );
     return response.data;
   },
@@ -21,7 +21,7 @@ export const portfolioApi = {
    */
   getHoldings: async (): Promise<ApiResponse<PortfolioHolding[]>> => {
     const response = await apiClient.get<ApiResponse<PortfolioHolding[]>>(
-      '/api/v1/client/portfolio/holdings'
+      '/api/marketplace/client/portfolio/holdings'
     );
     return response.data;
   },
@@ -31,7 +31,7 @@ export const portfolioApi = {
    */
   getHolding: async (holdingId: string): Promise<ApiResponse<PortfolioHolding>> => {
     const response = await apiClient.get<ApiResponse<PortfolioHolding>>(
-      `/api/v1/client/portfolio/holdings/${holdingId}`
+      `/api/marketplace/client/portfolio/holdings/${holdingId}`
     );
     return response.data;
   },
@@ -40,7 +40,7 @@ export const portfolioApi = {
    * Get portfolio performance
    */
   getPerformance: async (params?: { startDate?: string; endDate?: string }) => {
-    const response = await apiClient.get('/api/v1/client/portfolio/performance', {
+    const response = await apiClient.get('/api/marketplace/client/portfolio/performance', {
       params,
     });
     return response.data;
@@ -48,4 +48,5 @@ export const portfolioApi = {
 };
 
 export default portfolioApi;
+
 

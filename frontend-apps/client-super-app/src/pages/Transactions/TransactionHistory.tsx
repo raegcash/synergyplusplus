@@ -16,7 +16,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
   Button,
 } from '@mui/material';
 import { Download, Refresh } from '@mui/icons-material';
@@ -91,8 +90,8 @@ function TransactionHistory() {
       </Box>
 
       {/* Filters */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Box container spacing={2} sx={{ mb: 3 }}>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <FormControl fullWidth>
             <InputLabel>Transaction Type</InputLabel>
             <Select
@@ -107,8 +106,8 @@ function TransactionHistory() {
               <MenuItem value="REDEEM">Redeem</MenuItem>
             </Select>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Box>
+        <Box sx={{ flex: "1 1 calc(25% - 24px)", minWidth: "250px" }}>
           <FormControl fullWidth>
             <InputLabel>Status</InputLabel>
             <Select
@@ -123,8 +122,8 @@ function TransactionHistory() {
               <MenuItem value="CANCELLED">Cancelled</MenuItem>
             </Select>
           </FormControl>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Transactions Table */}
       <Card>

@@ -12,12 +12,12 @@ const app = express();
 const PORT = 8085;
 const JWT_SECRET = process.env.JWT_SECRET || 'superapp-secret-key-change-in-production';
 
-// Swagger configuration
+// Swagger configuration - Complete API
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Marketplace API',
+      title: 'Marketplace API - Complete',
       version: '1.0.0',
       description: 'Comprehensive REST API for Super App Marketplace - Products, Partners, Assets, Approvals, Features, and more',
       contact: {
@@ -53,28 +53,144 @@ const swaggerOptions = {
       { name: 'Health', description: 'Health check and status endpoints' },
     ],
   },
-  apis: ['./server.js'], // Path to the API docs
+  apis: ['./server.js'],
+};
+
+// Admin Portal Swagger configuration
+const adminSwaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Admin Portal API',
+      version: '1.0.0',
+      description: '🔐 Admin Portal API - Partner Management, Product Operations, Approvals, Hypercare & Monitoring',
+      contact: {
+        name: 'Super App Admin Team',
+        email: 'admin@superapp.com'
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:8085/api/marketplace',
+        description: 'Admin Portal Backend',
+      },
+    ],
+    tags: [
+      { name: 'Admin Auth', description: '🔐 Admin authentication and session management' },
+      { name: 'Partners', description: '🤝 Partner onboarding and management' },
+      { name: 'Products', description: '📦 Product catalog and configuration' },
+      { name: 'Assets', description: '💎 Asset management and pricing' },
+      { name: 'Approvals', description: '✅ Approval workflows and reviews' },
+      { name: 'Change Requests', description: '📝 Configuration change management' },
+      { name: 'Features', description: '🎛️ Feature flags and rollout control' },
+      { name: 'Greylist', description: '🚦 Access control (whitelist/blacklist)' },
+      { name: 'Admin Users', description: '👥 Admin user management' },
+      { name: 'User Groups', description: '👥 Role and permission groups' },
+      { name: 'Customers', description: '👤 Customer management and KYC' },
+      { name: 'Reports', description: '📊 Analytics and reporting' },
+      { name: 'Integrations', description: '🔌 Partner API integrations' },
+      { name: 'Health', description: '❤️ System health and monitoring' },
+    ],
+  },
+  apis: ['./server.js'],
+};
+
+// Client Portal Swagger configuration
+const clientSwaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Client Super App API',
+      version: '1.0.0',
+      description: '📱 Client Super App API - Marketplace Browsing, Investments, Portfolio & Transactions',
+      contact: {
+        name: 'Super App Support',
+        email: 'support@superapp.com'
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:8085/api/marketplace',
+        description: 'Client App Backend',
+      },
+    ],
+    tags: [
+      { name: 'Client Auth', description: '🔐 User registration and authentication' },
+      { name: 'Marketplace', description: '🏪 Browse products and assets' },
+      { name: 'Products', description: '📦 Investment products' },
+      { name: 'Assets', description: '💎 Stocks, Crypto, UITF assets' },
+      { name: 'Portfolio', description: '💼 User portfolio and holdings' },
+      { name: 'Transactions', description: '💳 Buy, sell, and transaction history' },
+      { name: 'Watchlist', description: '⭐ Favorite products and assets' },
+      { name: 'Profile', description: '👤 User profile and settings' },
+      { name: 'KYC', description: '✅ Know Your Customer verification' },
+      { name: 'Health', description: '❤️ API status' },
+    ],
+  },
+  apis: ['./server.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
+const adminSwaggerSpec = swaggerJsdoc(adminSwaggerOptions);
+const clientSwaggerSpec = swaggerJsdoc(clientSwaggerOptions);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:4000', 'http://localhost:5173', 'http://localhost:5174'],
   credentials: true
 }));
 app.use(bodyParser.json());
 
-// Swagger UI
-app.use('/api/marketplace/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Marketplace API Documentation',
-  customCss: '.swagger-ui .topbar { display: none }',
-}));
+// Swagger UI - Complete API Documentation
+app.use('/api/marketplace/docs', swaggerUi.serve);
+app.get('/api/marketplace/docs', (req, res, next) => {
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Marketplace API - Complete Documentation',
+    customCss: '.swagger-ui .topbar { display: none }',
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui.min.css',
+  })(req, res, next);
+});
 
-// Swagger JSON
+// Admin Portal Swagger UI
+app.get('/api/marketplace/docs/admin', (req, res, next) => {
+  swaggerUi.setup(adminSwaggerSpec, {
+    customSiteTitle: '🔐 Admin Portal API Documentation',
+    customCss: `
+      .swagger-ui .topbar { display: none }
+      .swagger-ui .info .title { color: #1976d2; }
+      .swagger-ui .info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; }
+      .swagger-ui .info .description { color: white; }
+    `,
+  })(req, res, next);
+});
+
+// Client Portal Swagger UI
+app.get('/api/marketplace/docs/client', (req, res, next) => {
+  swaggerUi.setup(clientSwaggerSpec, {
+    customSiteTitle: '📱 Client Super App API Documentation',
+    customCss: `
+      .swagger-ui .topbar { display: none }
+      .swagger-ui .info .title { color: #2e7d32; }
+      .swagger-ui .info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; }
+      .swagger-ui .info .description { color: white; }
+    `,
+  })(req, res, next);
+});
+
+// Swagger JSON endpoints
 app.get('/api/marketplace/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
+});
+
+app.get('/api/marketplace/swagger/admin.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(adminSwaggerSpec);
+});
+
+app.get('/api/marketplace/swagger/client.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(clientSwaggerSpec);
 });
 
 // Database setup - PostgreSQL
@@ -699,6 +815,373 @@ app.get('/api/marketplace/auth/verify', authenticateToken, (req, res) => {
 app.post('/api/marketplace/auth/logout', authenticateToken, (req, res) => {
   // In a production system, you might want to blacklist the token
   res.json({ message: 'Logout successful' });
+});
+
+// ============================================
+// CLIENT USER AUTHENTICATION (For Client Super App)
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Register a new client user
+ *     description: Register a new end-user customer for the client super app
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - firstName
+ *               - lastName
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *       400:
+ *         description: Email already in use or validation error
+ *       500:
+ *         description: Server error
+ */
+app.post('/api/v1/auth/register', async (req, res) => {
+  const { email, password, firstName, lastName, phoneNumber } = req.body;
+
+  // Validation
+  if (!email || !password || !firstName || !lastName) {
+    return res.status(400).json({ 
+      error: { message: 'Email, password, first name, and last name are required' }
+    });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ 
+      error: { message: 'Password must be at least 8 characters long' }
+    });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await db.get(`SELECT id FROM customers WHERE email = ?`, [email]);
+    
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: { message: 'Email already in use' }
+      });
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Insert new customer
+    const userId = uuidv4();
+    const createdAt = new Date().toISOString();
+    
+    await db.run(
+      `INSERT INTO customers (
+        id, email, password_hash, first_name, last_name, 
+        phone, kyc_status, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+        phoneNumber || null,
+        'PENDING',
+        'ACTIVE',
+        createdAt,
+        createdAt
+      ]
+    );
+
+    // Return user data directly (avoiding db.get compatibility issues)
+    res.status(201).json({
+      success: true,
+      data: {
+        id: userId,
+        userId: userId,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber || null,
+        kycStatus: 'PENDING',
+        accountStatus: 'ACTIVE',
+        createdAt: createdAt,
+        updatedAt: createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      error: { message: 'Registration failed. Please try again.' }
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/auth/login:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Login client user
+ *     description: Authenticate a client user and return JWT token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ *       403:
+ *         description: Account locked
+ */
+app.post('/api/v1/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ 
+      error: { message: 'Email and password are required' }
+    });
+  }
+
+  try {
+    // Get user
+    const user = await db.get(
+      `SELECT * FROM customers WHERE email = ? AND status = 'ACTIVE'`,
+      [email]
+    );
+
+    if (!user) {
+      return res.status(401).json({ 
+        error: { message: 'Invalid email or password' }
+      });
+    }
+
+    // Check if account is locked
+    if (user.locked_until && new Date(user.locked_until) > new Date()) {
+      return res.status(403).json({ 
+        error: { message: 'Account is temporarily locked. Please try again later.' }
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      // Increment failed login attempts
+      const newFailedAttempts = (user.failed_login_attempts || 0) + 1;
+      let lockedUntil = null;
+
+      if (newFailedAttempts >= 5) {
+        // Lock account for 15 minutes after 5 failed attempts
+        lockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      }
+
+      await db.run(
+        `UPDATE customers SET failed_login_attempts = ?, locked_until = ? WHERE id = ?`,
+        [newFailedAttempts, lockedUntil, user.id]
+      );
+
+      return res.status(401).json({ 
+        error: { message: 'Invalid email or password' }
+      });
+    }
+
+    // Reset failed login attempts and update last login
+    await db.run(
+      `UPDATE customers SET failed_login_attempts = 0, locked_until = NULL, last_login = ? WHERE id = ?`,
+      [new Date().toISOString(), user.id]
+    );
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        type: 'customer'
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Generate refresh token
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+        type: 'refresh'
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: token,
+        refreshToken: refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          phoneNumber: user.phone,
+          kycStatus: user.kyc_status,
+          status: user.status
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      error: { message: 'Login failed. Please try again.' }
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/auth/me:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Get current user info
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User info
+ *       401:
+ *         description: Unauthorized
+ */
+app.get('/api/v1/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await db.get(
+      `SELECT id, email, first_name, last_name, phone, kyc_status, status, created_at 
+       FROM customers WHERE id = ?`,
+      [req.user.id]
+    );
+
+    if (!user) {
+      return res.status(404).json({ 
+        error: { message: 'User not found' }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        phoneNumber: user.phone,
+        kycStatus: user.kyc_status,
+        status: user.status,
+        createdAt: user.created_at
+      }
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ 
+      error: { message: 'Failed to get user info' }
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/auth/refresh:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Refresh access token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token refreshed
+ *       401:
+ *         description: Invalid refresh token
+ */
+app.post('/api/v1/auth/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ 
+      error: { message: 'Refresh token is required' }
+    });
+  }
+
+  try {
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, JWT_SECRET);
+
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({ 
+        error: { message: 'Invalid refresh token' }
+      });
+    }
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      {
+        id: decoded.id,
+        type: 'customer'
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: newAccessToken
+      }
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(401).json({ 
+      error: { message: 'Invalid or expired refresh token' }
+    });
+  }
 });
 
 // ============================================
@@ -1425,11 +1908,13 @@ app.get('/api/marketplace/products', (req, res) => {
     
     products.forEach((product, index) => {
       // Query to get partners mapped to this product
+      // When filtering products by status=ACTIVE, also filter partners by status=ACTIVE
       const partnersQuery = `
         SELECT p.id, p.code, p.name, p.partner_type 
         FROM partners p
         INNER JOIN product_partners pp ON p.id = pp.partner_id
         WHERE pp.product_id = ?
+        ${status === 'ACTIVE' ? ' AND p.status = \'ACTIVE\'' : ''}
       `;
       
       db.all(partnersQuery, [product.id], (err, partnerRows) => {
@@ -1448,6 +1933,100 @@ app.get('/api/marketplace/products', (req, res) => {
         if (completed === products.length) {
           res.json(products);
         }
+      });
+    });
+  });
+});
+
+/**
+ * @swagger
+ * /products/hypercare:
+ *   get:
+ *     tags: [Products]
+ *     summary: Get products eligible for hypercare module
+ *     description: Returns only ACTIVE products that have ACTIVE partners with ACTIVE assets
+ *     responses:
+ *       200:
+ *         description: List of hypercare-eligible products
+ */
+app.get('/api/marketplace/products/hypercare', (req, res) => {
+  // Query to get products that meet hypercare criteria:
+  // 1. Product is ACTIVE
+  // 2. Product has at least one ACTIVE partner
+  // 3. That partner has at least one ACTIVE asset
+  const query = `
+    SELECT DISTINCT p.*
+    FROM products p
+    INNER JOIN product_partners pp ON p.id = pp.product_id
+    INNER JOIN partners pr ON pp.partner_id = pr.id
+    INNER JOIN assets a ON pr.id = a.partner_id AND p.id = a.product_id
+    WHERE p.status = 'ACTIVE'
+      AND pr.status = 'ACTIVE'
+      AND a.status = 'ACTIVE'
+    ORDER BY p.created_at DESC
+  `;
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Hypercare query error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (!rows || rows.length === 0) {
+      return res.json([]);
+    }
+    
+    // Fetch partners and features for each product
+    const products = rows.map(transformProduct);
+    let completed = 0;
+    
+    products.forEach((product, index) => {
+      // Get only ACTIVE partners for this product that have ACTIVE assets
+      const partnersQuery = `
+        SELECT DISTINCT p.id, p.code, p.name, p.partner_type 
+        FROM partners p
+        INNER JOIN product_partners pp ON p.id = pp.partner_id
+        INNER JOIN assets a ON p.id = a.partner_id AND a.product_id = ?
+        WHERE pp.product_id = ?
+          AND p.status = 'ACTIVE'
+          AND a.status = 'ACTIVE'
+      `;
+      
+      db.all(partnersQuery, [product.id, product.id], (err, partnerRows) => {
+        if (!err && partnerRows) {
+          products[index].partners = partnerRows.map(p => ({
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            type: p.partner_type
+          }));
+        } else {
+          products[index].partners = [];
+        }
+        
+        // Get features for this product
+        const featuresQuery = `
+          SELECT id, name, description, enabled, maintenance_mode, whitelist_mode
+          FROM features
+          WHERE product_id = ?
+        `;
+        
+        db.all(featuresQuery, [product.id], (err, featureRows) => {
+          if (!err && featureRows) {
+            products[index].features = featureRows;
+            products[index].featuresCount = featureRows.length;
+            products[index].enabledFeaturesCount = featureRows.filter(f => f.enabled).length;
+          } else {
+            products[index].features = [];
+            products[index].featuresCount = 0;
+            products[index].enabledFeaturesCount = 0;
+          }
+          
+          completed++;
+          if (completed === products.length) {
+            res.json(products);
+          }
+        });
       });
     });
   });
@@ -1747,11 +2326,13 @@ app.get('/api/marketplace/partners', (req, res) => {
     
     partners.forEach((partner, index) => {
       // Query to get products mapped to this partner
+      // When filtering partners by status=ACTIVE, also filter products by status=ACTIVE
       const productsQuery = `
         SELECT p.id, p.code, p.name, p.product_type 
         FROM products p
         INNER JOIN product_partners pp ON p.id = pp.product_id
         WHERE pp.partner_id = ?
+        ${status === 'ACTIVE' ? ' AND p.status = \'ACTIVE\'' : ''}
       `;
       
       db.all(productsQuery, [partner.id], (err, productRows) => {
@@ -1809,7 +2390,8 @@ app.get('/api/marketplace/partners', (req, res) => {
  *         description: List of partners with specified status
  */
 app.get('/api/marketplace/partners/status/:status', (req, res) => {
-  db.all('SELECT * FROM partners WHERE status = ? ORDER BY created_at DESC', [req.params.status], (err, rows) => {
+  const partnerStatus = req.params.status;
+  db.all('SELECT * FROM partners WHERE status = ? ORDER BY created_at DESC', [partnerStatus], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     
     // If no partners, return empty array
@@ -1823,11 +2405,13 @@ app.get('/api/marketplace/partners/status/:status', (req, res) => {
     
     partners.forEach((partner, index) => {
       // Query to get products mapped to this partner
+      // When filtering partners by status=ACTIVE, also filter products by status=ACTIVE
       const productsQuery = `
         SELECT p.id, p.code, p.name, p.product_type 
         FROM products p
         INNER JOIN product_partners pp ON p.id = pp.product_id
         WHERE pp.partner_id = ?
+        ${partnerStatus === 'ACTIVE' ? ' AND p.status = \'ACTIVE\'' : ''}
       `;
       
       db.all(productsQuery, [partner.id], (err, productRows) => {

@@ -15,17 +15,27 @@ export const productsApi = {
    * Get all products
    */
   getProducts: async (params?: PaginationParams & { status?: string; productType?: string }) => {
-    const response = await apiClient.get<PaginatedResponse<Product>>('/api/v1/products', {
+    const response = await apiClient.get<Product[]>('/api/marketplace/products', {
       params,
     });
-    return response.data;
+    // Backend returns plain array, so wrap it in expected format
+    return {
+      success: true,
+      data: response.data,
+      pagination: {
+        page: 1,
+        limit: response.data.length,
+        total: response.data.length,
+        totalPages: 1,
+      }
+    };
   },
 
   /**
    * Get product by ID
    */
   getProduct: async (id: string): Promise<ApiResponse<Product>> => {
-    const response = await apiClient.get<ApiResponse<Product>>(`/api/v1/products/${id}`);
+    const response = await apiClient.get<ApiResponse<Product>>(`/api/marketplace/products/${id}`);
     return response.data;
   },
 
@@ -47,7 +57,7 @@ export const productsApi = {
    * Search products
    */
   searchProducts: async (query: string, params?: PaginationParams) => {
-    const response = await apiClient.get<PaginatedResponse<Product>>('/api/v1/products/search', {
+    const response = await apiClient.get<PaginatedResponse<Product>>('/api/marketplace/products/search', {
       params: { ...params, q: query },
     });
     return response.data;
@@ -55,4 +65,5 @@ export const productsApi = {
 };
 
 export default productsApi;
+
 

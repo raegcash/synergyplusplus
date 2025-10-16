@@ -24,6 +24,7 @@ class DatabaseCompat {
    * @param {string} sql - SQL query
    * @param {array} params - Query parameters
    * @param {function} callback - Callback function (err, result)
+   * @returns {Promise} Promise that resolves when query completes (for await support)
    */
   run(sql, params = [], callback) {
     // Normalize params - can be called as run(sql, callback) or run(sql, params, callback)
@@ -36,7 +37,7 @@ class DatabaseCompat {
     let paramIndex = 1;
     const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
 
-    query(pgSql, params)
+    const promise = query(pgSql, params)
       .then(result => {
         if (callback) {
           // Provide SQLite-like context with lastID and changes
@@ -46,6 +47,7 @@ class DatabaseCompat {
           };
           callback.call(context, null);
         }
+        return result;
       })
       .catch(err => {
         if (callback) {
@@ -53,7 +55,11 @@ class DatabaseCompat {
         } else {
           console.error('Database error:', err);
         }
+        throw err;
       });
+    
+    // Return promise for async/await support
+    return promise;
   }
 
   /**
@@ -61,6 +67,7 @@ class DatabaseCompat {
    * @param {string} sql - SQL query
    * @param {array} params - Query parameters
    * @param {function} callback - Callback function (err, row)
+   * @returns {Promise} Promise that resolves with the row (for await support)
    */
   get(sql, params = [], callback) {
     // Normalize params
@@ -73,12 +80,14 @@ class DatabaseCompat {
     let paramIndex = 1;
     const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
 
-    query(pgSql, params)
+    const promise = query(pgSql, params)
       .then(result => {
+        const row = result.rows[0] || null;
         if (callback) {
           // Return first row or undefined
-          callback(null, result.rows[0] || null);
+          callback(null, row);
         }
+        return row;
       })
       .catch(err => {
         if (callback) {
@@ -86,7 +95,11 @@ class DatabaseCompat {
         } else {
           console.error('Database error:', err);
         }
+        throw err;
       });
+    
+    // Return promise for async/await support
+    return promise;
   }
 
   /**
@@ -94,6 +107,7 @@ class DatabaseCompat {
    * @param {string} sql - SQL query
    * @param {array} params - Query parameters
    * @param {function} callback - Callback function (err, rows)
+   * @returns {Promise} Promise that resolves with rows array (for await support)
    */
   all(sql, params = [], callback) {
     // Normalize params
@@ -106,11 +120,13 @@ class DatabaseCompat {
     let paramIndex = 1;
     const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
 
-    query(pgSql, params)
+    const promise = query(pgSql, params)
       .then(result => {
+        const rows = result.rows || [];
         if (callback) {
-          callback(null, result.rows || []);
+          callback(null, rows);
         }
+        return rows;
       })
       .catch(err => {
         if (callback) {
@@ -118,7 +134,11 @@ class DatabaseCompat {
         } else {
           console.error('Database error:', err);
         }
+        throw err;
       });
+    
+    // Return promise for async/await support
+    return promise;
   }
 
   /**

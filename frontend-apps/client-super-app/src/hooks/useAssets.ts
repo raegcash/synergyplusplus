@@ -11,6 +11,7 @@ export const useAssets = (params?: {
   productId?: string;
   partnerId?: string;
   assetType?: string;
+  status?: string;
   page?: number;
   limit?: number;
 }) => {
@@ -51,4 +52,5 @@ export const useAsset = (assetId: string) => {
 export const useAssetsByProduct = (productId: string) => {
   return useAssets({ productId });
 };
+
 

@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
   TextField,
   Button,
   Divider,
@@ -160,8 +159,8 @@ function Profile() {
               )}
             </Box>
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+              <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "300px" }}>
                 <TextField
                   fullWidth
                   label="First Name"
@@ -169,8 +168,8 @@ function Profile() {
                   onChange={handleChange('firstName')}
                   disabled={!isEditing}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: "1 1 calc(50% - 12px)", minWidth: "300px" }}>
                 <TextField
                   fullWidth
                   label="Last Name"
@@ -178,8 +177,8 @@ function Profile() {
                   onChange={handleChange('lastName')}
                   disabled={!isEditing}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
                   label="Email"
@@ -187,8 +186,8 @@ function Profile() {
                   onChange={handleChange('email')}
                   disabled={!isEditing}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
                   label="Phone Number"
@@ -196,8 +195,8 @@ function Profile() {
                   onChange={handleChange('phoneNumber')}
                   disabled={!isEditing}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </Card>
       </TabPanel>
@@ -267,29 +266,29 @@ function Profile() {
             <Typography variant="subtitle1" fontWeight={600} gutterBottom>
               Change Password
             </Typography>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={12}>
+            <Box container spacing={2} sx={{ mb: 3 }}>
+              <Box sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
                   type="password"
                   label="Current Password"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
                   type="password"
                   label="New Password"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
                   type="password"
                   label="Confirm New Password"
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
             <Button variant="contained">
               Update Password
             </Button>

@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   Chip,
   CircularProgress,
   Alert,
@@ -91,32 +90,32 @@ function ProductDetails() {
 
           <Divider sx={{ my: 3 }} />
 
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={4}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+            <Box sx={{ width: "100%" }} sm={4}>
               <Typography variant="body2" color="text.secondary">
                 Minimum Investment
               </Typography>
               <Typography variant="h6" fontWeight={600}>
-                ₱{product.minimumInvestment?.toLocaleString() || '0'}
+                ₱{product.minInvestment?.toLocaleString() || '0'}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
+            </Box>
+            <Box sx={{ width: "100%" }} sm={4}>
               <Typography variant="body2" color="text.secondary">
                 Product Type
               </Typography>
               <Typography variant="h6" fontWeight={600}>
                 {product.productType}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
+            </Box>
+            <Box sx={{ width: "100%" }} sm={4}>
               <Typography variant="body2" color="text.secondary">
                 Available Assets
               </Typography>
               <Typography variant="h6" fontWeight={600}>
                 {assetsData?.data?.length || 0}
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -130,13 +129,13 @@ function ProductDetails() {
         </Typography>
 
         {assetsData?.data && assetsData.data.length > 0 ? (
-          <Grid container spacing={3}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
             {assetsData.data.map((asset) => (
-              <Grid item xs={12} sm={6} md={4} key={asset.id}>
+              <Box sx={{ flex: "1 1 calc(33.333% - 20px)", minWidth: "300px" }} key={asset.id}>
                 <AssetCard asset={asset} />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         ) : (
           <Alert severity="info">No assets available for this product.</Alert>
         )}

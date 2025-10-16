@@ -53,16 +53,11 @@ const ProductsAndFeatures = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [menuProductCode, setMenuProductCode] = useState<string>('')
 
-  // Fetch products (ACTIVE and SUSPENDED for Hypercare, exclude PENDING)
-  const { data: allProducts = [], isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => productsAPI.getAll(),
+  // Fetch hypercare-eligible products (ACTIVE with ACTIVE partners having ACTIVE assets)
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['hypercare-products'],
+    queryFn: () => productsAPI.getHypercareEligible(),
   })
-
-  // Filter to show only ACTIVE and SUSPENDED products (exclude PENDING_APPROVAL, REJECTED, etc.)
-  const products = allProducts.filter(p => 
-    p.status === 'ACTIVE' || p.status === 'SUSPENDED'
-  )
 
   // Fetch all features
   const { data: allFeatures = [] } = useQuery({
