@@ -11,7 +11,12 @@
     "test:watch": "mocha tests/**/*.test.js --watch",
     "test:coverage": "nyc mocha tests/**/*.test.js --timeout 5000"
   },
-  "keywords": ["marketplace", "api", "fintech", "investment"],
+  "keywords": [
+    "marketplace",
+    "api",
+    "fintech",
+    "investment"
+  ],
   "author": "Synergy++ Team",
   "license": "ISC",
   "dependencies": {
@@ -27,11 +32,12 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "mocha": "^10.2.0",
     "chai": "^4.3.10",
-    "sinon": "^17.0.1",
-    "nyc": "^15.1.0",
+    "mocha": "^10.2.0",
     "nodemon": "^3.0.2",
+    "nyc": "^15.1.0",
+    "rewire": "^9.0.1",
+    "sinon": "^17.0.1",
     "supertest": "^6.3.3"
   }
 }

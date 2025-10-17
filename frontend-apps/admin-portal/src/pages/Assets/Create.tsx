@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '../../contexts/NotificationContext'
 import {
   Box,
   Typography,
@@ -30,6 +31,7 @@ import { partnersAPI } from '../../services/partners'
 const AssetCreate = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { showSuccess, showError, showWarning } = useNotification()
 
   const [formData, setFormData] = useState({
     code: '',
@@ -135,9 +137,10 @@ const AssetCreate = () => {
           ...prev, 
           partnerId: 'Selected partner is not mapped to this product. Please select a valid partner.' 
         }))
+        showWarning('Selected partner is not mapped to this product. Please choose a different partner.')
       }
     }
-  }, [formData.productId, filteredPartners, formData.partnerId])
+  }, [formData.productId, filteredPartners, formData.partnerId, showWarning])
 
   // When partner changes, validate if current product is still valid
   useEffect(() => {
@@ -149,20 +152,22 @@ const AssetCreate = () => {
           ...prev, 
           productId: 'Selected product is not mapped to this partner. Please select a valid product.' 
         }))
+        showWarning('Selected product is not mapped to this partner. Please choose a different product.')
       }
     }
-  }, [formData.partnerId, filteredProducts, formData.productId])
+  }, [formData.partnerId, filteredProducts, formData.productId, showWarning])
 
   // Create asset mutation
   const createAssetMutation = useMutation({
     mutationFn: (data: typeof formData) => assetsAPI.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
-      console.log('Asset created successfully and submitted for approval!')
+      showSuccess('Asset created successfully and submitted for approval!')
       navigate('/assets')
     },
     onError: (error: any) => {
-      console.log(`Error creating asset: ${error.response?.data?.message || error.message}`)
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create asset'
+      showError(`Error creating asset: ${errorMessage}`)
     },
   })
 

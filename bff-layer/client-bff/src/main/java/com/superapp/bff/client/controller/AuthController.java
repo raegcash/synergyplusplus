@@ -15,22 +15,22 @@ public class AuthController {
 
     private final RestTemplate restTemplate;
     
-    @Value("${services.marketplace:http://localhost:8085}")
-    private String marketplaceUrl;
+    @Value("${services.identity:http://localhost:8081}")
+    private String identityUrl;
 
     public AuthController() {
         this.restTemplate = new RestTemplate();
     }
 
     /**
-     * Login endpoint - proxies to Marketplace API
-     * Uses /api/v1/auth/login for customer authentication (checks customers table)
+     * Login endpoint - proxies to Identity Service
+     * Authenticates users against Identity Service
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, Object> credentials) {
         try {
-            // Use the customer auth endpoint - checks customers table
-            String url = marketplaceUrl + "/api/v1/auth/login";
+            // Route to Identity Service for authentication
+            String url = identityUrl + "/api/v1/auth/login";
             
             // Transform username to email if needed (for backward compatibility)
             if (credentials.containsKey("username") && !credentials.containsKey("email")) {
@@ -61,12 +61,12 @@ public class AuthController {
     }
 
     /**
-     * Register endpoint - proxies to Marketplace API
+     * Register endpoint - proxies to Identity Service
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, Object> userData) {
         try {
-            String url = marketplaceUrl + "/api/marketplace/auth/register";
+            String url = identityUrl + "/api/v1/auth/register";
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -105,7 +105,7 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken(@RequestHeader("Authorization") String token) {
         try {
-            String url = marketplaceUrl + "/api/marketplace/auth/verify";
+            String url = identityUrl + "/api/v1/auth/verify";
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", token);

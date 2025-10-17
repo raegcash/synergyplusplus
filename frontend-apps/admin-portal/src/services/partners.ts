@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085/api/marketplace'
 // Disabled mock data - now using persistent database only
 const USE_MOCK_DATA = false
 
@@ -258,127 +258,19 @@ export const partnersAPI = {
 
   // Approve partner
   approve: async (id: string, approvedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockPartnersStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Partner not found')
-      
-      const partner = mockPartnersStore[index]
-      mockPartnersStore[index] = {
-        ...partner,
-        status: 'ACTIVE',
-      }
-      
-      // CRITICAL: Update products to include this partner in their partners array
-      // This ensures bidirectional relationship for asset filtering
-      if (partner.products && partner.products.length > 0) {
-        const { productsAPI } = await import('./products')
-        const allProducts = await productsAPI.getAll()
-        
-        for (const mappedProduct of partner.products) {
-          const product = allProducts.find(p => p.id === mappedProduct.id)
-          if (product) {
-            const partnerRef = {
-              id: partner.id,
-              name: partner.name,
-              code: partner.code,
-            }
-            
-            // Add partner to product's partners array if not already there
-            const existingPartners = product.partners || []
-            const partnerExists = existingPartners.some(p => p.id === partner.id)
-            
-            if (!partnerExists) {
-              await productsAPI.update(product.id, {
-                partners: [...existingPartners, partnerRef],
-              } as any)
-            }
-          }
-        }
-      }
-      
-      return mockPartnersStore[index]
-    }
-    
-    try {
-      const response = await api.patch<Partner>(`/partners/${id}/approve`, {
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-        status: 'ACTIVE',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockPartnersStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Partner not found')
-      
-      const partner = mockPartnersStore[index]
-      mockPartnersStore[index] = {
-        ...partner,
-        status: 'ACTIVE',
-      }
-      
-      // Update products to include this partner
-      if (partner.products && partner.products.length > 0) {
-        const { productsAPI } = await import('./products')
-        const allProducts = await productsAPI.getAll()
-        
-        for (const mappedProduct of partner.products) {
-          const product = allProducts.find(p => p.id === mappedProduct.id)
-          if (product) {
-            const partnerRef = {
-              id: partner.id,
-              name: partner.name,
-              code: partner.code,
-            }
-            
-            const existingPartners = product.partners || []
-            const partnerExists = existingPartners.some(p => p.id === partner.id)
-            
-            if (!partnerExists) {
-              await productsAPI.update(product.id, {
-                partners: [...existingPartners, partnerRef],
-              } as any)
-            }
-          }
-        }
-      }
-      
-      return mockPartnersStore[index]
-    }
+    const response = await api.patch<Partner>(`/partners/${id}/approve`, {
+      approvedBy,
+    })
+    return response.data
   },
 
   // Reject partner
   reject: async (id: string, reason: string, rejectedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockPartnersStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Partner not found')
-      mockPartnersStore[index] = {
-        ...mockPartnersStore[index],
-        status: 'SUSPENDED',
-      }
-      return mockPartnersStore[index]
-    }
-    
-    try {
-      const response = await api.patch<Partner>(`/partners/${id}/reject`, {
-        reason,
-        rejectedBy,
-        rejectedAt: new Date().toISOString(),
-        status: 'SUSPENDED',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockPartnersStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Partner not found')
-      mockPartnersStore[index] = {
-        ...mockPartnersStore[index],
-        status: 'SUSPENDED',
-      }
-      return mockPartnersStore[index]
-    }
+    const response = await api.patch<Partner>(`/partners/${id}/reject`, {
+      reason,
+      rejectedBy,
+    })
+    return response.data
   },
 
   // Get pending partners
@@ -399,4 +291,13 @@ export const partnersAPI = {
 }
 
 export default partnersAPI
+
+// Named exports for easier testing and consumption
+export const getPartners = (status?: string) => partnersAPI.getAll(status)
+export const getPartnerById = (id: string) => partnersAPI.get(id)
+export const createPartner = (data: Partial<Partner>) => partnersAPI.create(data)
+export const updatePartner = (id: string, data: Partial<Partner>) => partnersAPI.update(id, data)
+export const deletePartner = (id: string) => partnersAPI.delete(id)
+export const approvePartner = (id: string, approvedBy: string) => partnersAPI.approve(id, approvedBy)
+export const rejectPartner = (id: string, reason: string, rejectedBy: string) => partnersAPI.reject(id, reason, rejectedBy)
 

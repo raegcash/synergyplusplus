@@ -57,13 +57,13 @@ export interface LoginRequest {
   password: string;
 }
 
+// Backend returns AuthResponse directly (no wrapper)
 export interface LoginResponse {
-  success: boolean;
-  data: {
-    accessToken: string;
-    refreshToken: string;
-    user: User;
-  };
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: User;
 }
 
 export interface RegisterRequest {

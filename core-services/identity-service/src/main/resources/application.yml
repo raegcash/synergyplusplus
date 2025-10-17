@@ -6,7 +6,7 @@ spring:
     name: identity-service
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/identity_db
+    url: jdbc:postgresql://localhost:5432/customer_identity_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -44,7 +44,7 @@ jwt:
 
 # Security
 security:
-  allowed-origins: http://localhost:3000,http://localhost:3001
+  allowed-origins: http://localhost:3000,http://localhost:3001,http://localhost:5175
 
 # Actuator
 management:

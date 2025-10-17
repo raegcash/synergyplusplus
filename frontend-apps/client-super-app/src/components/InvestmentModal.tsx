@@ -183,7 +183,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:9002/api/v1/investments', {
+      const response = await fetch('/api/v1/investments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

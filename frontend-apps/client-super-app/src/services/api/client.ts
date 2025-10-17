@@ -81,7 +81,8 @@ class ApiClient {
               refreshToken,
             });
 
-            const { accessToken } = response.data.data;
+            // Backend returns AuthResponse directly (no wrapper)
+            const { accessToken } = response.data;
 
             localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
 

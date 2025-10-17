@@ -154,6 +154,34 @@ app.use((req, res, next) => {
 const investmentRoutes = require('./routes/investments');
 app.use('/api/v1/investments', investmentRoutes);
 
+// Portfolio routes (Enterprise-grade)
+const portfolioRoutes = require('./routes/portfolio');
+app.use('/api/v1/portfolio', portfolioRoutes);
+
+// Transaction routes (Enterprise-grade)
+const transactionRoutes = require('./routes/transactions');
+app.use('/api/v1/transactions', transactionRoutes);
+
+// Dashboard routes (Enterprise-grade)
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/api/v1/dashboard', dashboardRoutes);
+
+// Profile & KYC routes (Enterprise-grade)
+const profileRoutes = require('./routes/profile');
+app.use('/api/v1/profile', profileRoutes);
+
+// Products routes (Admin Portal)
+const productsRoutes = require('./routes/products');
+app.use('/api/v1/products', productsRoutes);
+
+// Partners routes (Admin Portal)
+const partnersRoutes = require('./routes/partners');
+app.use('/api/v1/partners', partnersRoutes);
+
+// Assets routes (Admin Portal)
+const assetsRoutes = require('./routes/assets');
+app.use('/api/v1/assets', assetsRoutes);
+
 // Swagger UI - Complete API Documentation
 app.use('/api/marketplace/docs', swaggerUi.serve);
 app.get('/api/marketplace/docs', (req, res, next) => {

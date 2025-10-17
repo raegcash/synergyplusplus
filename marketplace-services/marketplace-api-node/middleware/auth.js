@@ -26,8 +26,12 @@ const authMiddleware = (req, res, next) => {
     
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    // Verify token - Identity Service uses HS512 algorithm
+    console.log('[AUTH] Verifying JWT token...');
+    console.log('[AUTH] JWT_SECRET:', JWT_SECRET ? `${JWT_SECRET.substring(0, 20)}...` : 'NOT SET');
+    console.log('[AUTH] Token (first 30):', token.substring(0, 30) + '...');
+    
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS512', 'HS256'] });
     
     // Check token expiration
     if (decoded.exp && Date.now() >= decoded.exp * 1000) {
@@ -40,11 +44,13 @@ const authMiddleware = (req, res, next) => {
     }
     
     // Add user info to request
+    // Identity Service uses 'sub' for user ID, fall back to 'userId' for compatibility
     req.user = {
-      id: decoded.userId,
+      id: decoded.sub || decoded.userId,
       email: decoded.email,
       roles: decoded.roles || [],
-      permissions: decoded.permissions || []
+      permissions: decoded.permissions || [],
+      authorities: decoded.authorities || '' // Identity Service uses authorities
     };
     
     // Add correlation ID for tracing
@@ -103,12 +109,14 @@ const optionalAuth = (req, res, next) => {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
+      // Identity Service uses HS512 algorithm
+      const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS512', 'HS256'] });
       req.user = {
-        id: decoded.userId,
+        id: decoded.sub || decoded.userId,
         email: decoded.email,
         roles: decoded.roles || [],
-        permissions: decoded.permissions || []
+        permissions: decoded.permissions || [],
+        authorities: decoded.authorities || ''
       };
     } catch (error) {
       // Token invalid but don't fail

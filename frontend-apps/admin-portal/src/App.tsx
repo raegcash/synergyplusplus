@@ -36,6 +36,7 @@ import ApprovalsList from './pages/Approvals/List'
 // Auth
 import { Login } from './pages/Login'
 import { AuthProvider } from './contexts/AuthContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Admin IAM
@@ -48,7 +49,8 @@ import { UserGroupView } from './pages/Admin/Groups/View'
 
 function App() {
   return (
-    <AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -138,6 +140,7 @@ function App() {
         />
       </Routes>
     </AuthProvider>
+    </NotificationProvider>
   )
 }
 

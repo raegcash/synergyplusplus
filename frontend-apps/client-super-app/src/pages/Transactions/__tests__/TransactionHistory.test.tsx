@@ -1,53 +1,129 @@
-import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import { renderWithProviders } from '../../../test/testUtils';
-import TransactionHistory from '../TransactionHistory';
+/**
+ * Transaction History Component Tests
+ * Tests for Transaction History page functionality
+ * 
+ * @module pages/Transactions/__tests__/TransactionHistory.test
+ */
 
-// Mock react-query
-vi.mock('@tanstack/react-query', async () => {
-  const actual = await vi.importActual('@tantml:query/react-query');
-  return {
-    ...actual,
-    useQuery: vi.fn(() => ({
-      data: {
-        data: [],
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { screen, fireEvent } from '@testing-library/react';
+import { render } from '../../../test/testUtils';
+import TransactionHistory from '../TransactionHistory';
+import * as transactionHooks from '../../../hooks/useTransactions';
+
+// Mock hooks
+vi.mock('../../../hooks/useTransactions');
+
+describe('TransactionHistory Component', () => {
+
+  const mockTransactions = {
+    transactions: [
+      {
+        id: '1',
+        transactionDate: '2024-01-01T00:00:00Z',
+        transactionType: 'INVESTMENT',
+        description: 'Investment in BDO Equity Fund',
+        amount: 10000,
+        units: 100,
+        status: 'COMPLETED',
+        referenceNumber: 'TXN001',
       },
+      {
+        id: '2',
+        transactionDate: '2024-01-02T00:00:00Z',
+        transactionType: 'DIVIDEND',
+        description: 'Dividend payment',
+        amount: 500,
+        units: 0,
+        status: 'COMPLETED',
+        referenceNumber: 'TXN002',
+      },
+    ],
+    totalCount: 2,
+  };
+
+  beforeEach(() => {
+    vi.mocked(transactionHooks.useTransactions).mockReturnValue({
+      data: mockTransactions,
       isLoading: false,
       error: null,
       refetch: vi.fn(),
-    })),
-  };
-});
+    } as any);
 
-describe('TransactionHistory', () => {
-  it('renders transaction history page', () => {
-    renderWithProviders(<TransactionHistory />);
+    vi.mocked(transactionHooks.useTransactionStatistics).mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: null,
+    } as any);
 
-    expect(screen.getByText('Transaction History')).toBeInTheDocument();
-    expect(screen.getByText(/View all your past transactions/i)).toBeInTheDocument();
+    vi.mocked(transactionHooks.useExportTransactions).mockReturnValue({
+      mutateAsync: vi.fn(),
+      isLoading: false,
+    } as any);
   });
 
-  it('displays filter dropdowns', () => {
-    renderWithProviders(<TransactionHistory />);
+  it('should render transaction history page', () => {
+    render(<TransactionHistory />);
+    expect(screen.getByText('Transaction History')).toBeInTheDocument();
+  });
 
-    expect(screen.getByLabelText('Transaction Type')).toBeInTheDocument();
+  it('should display transactions', () => {
+    render(<TransactionHistory />);
+    expect(screen.getByText('Investment in BDO Equity Fund')).toBeInTheDocument();
+    expect(screen.getByText('Dividend payment')).toBeInTheDocument();
+  });
+
+  it('should display transaction amounts', () => {
+    render(<TransactionHistory />);
+    expect(screen.getByText(/10,000/)).toBeInTheDocument();
+    expect(screen.getByText(/500/)).toBeInTheDocument();
+  });
+
+  it('should have filter dropdowns', () => {
+    render(<TransactionHistory />);
+    expect(screen.getByLabelText('Type')).toBeInTheDocument();
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
   });
 
-  it('has export and refresh buttons', () => {
-    renderWithProviders(<TransactionHistory />);
-
-    expect(screen.getByRole('button', { name: /Export/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Refresh/i })).toBeInTheDocument();
+  it('should have refresh button', () => {
+    render(<TransactionHistory />);
+    const refreshButton = screen.getByText('Refresh');
+    expect(refreshButton).toBeInTheDocument();
   });
 
-  it('shows empty state when no transactions', async () => {
-    renderWithProviders(<TransactionHistory />);
+  it('should show loading state', () => {
+    vi.mocked(transactionHooks.useTransactions).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
-    await waitFor(() => {
-      expect(screen.getByText('No Transactions Yet')).toBeInTheDocument();
-      expect(screen.getByText(/Your transaction history will appear here/i)).toBeInTheDocument();
-    });
+    render(<TransactionHistory />);
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('should show error state', () => {
+    vi.mocked(transactionHooks.useTransactions).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('Failed to load'),
+      refetch: vi.fn(),
+    } as any);
+
+    render(<TransactionHistory />);
+    expect(screen.getByText(/Failed to load transactions/i)).toBeInTheDocument();
+  });
+
+  it('should show empty state', () => {
+    vi.mocked(transactionHooks.useTransactions).mockReturnValue({
+      data: { transactions: [], totalCount: 0 },
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
+
+    render(<TransactionHistory />);
+    expect(screen.getByText(/No transactions found/i)).toBeInTheDocument();
   });
 });
-

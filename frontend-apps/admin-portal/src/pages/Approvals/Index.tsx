@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '../../contexts/NotificationContext'
 import {
   Box,
   Typography,
@@ -62,6 +63,7 @@ type ApprovalItem = {
 const ApprovalsIndex = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { showSuccess, showError } = useNotification()
   const [tabValue, setTabValue] = useState(0) // 0 = All, 1 = Products, 2 = Partners, 3 = Assets
   const [detailsDialog, setDetailsDialog] = useState(false)
   const [approvalDialog, setApprovalDialog] = useState(false)
@@ -102,12 +104,12 @@ const ApprovalsIndex = () => {
     mutationFn: (id: string) => productsAPI.approve(id, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      console.log('Product approved successfully!')
+      showSuccess('Product approved successfully! It is now ACTIVE and available in the marketplace.')
       setApprovalDialog(false)
       setSelectedItem(null)
     },
     onError: (error: any) => {
-      console.log(`Error: ${error.message}`)
+      showError(`Failed to approve product: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -116,12 +118,12 @@ const ApprovalsIndex = () => {
     mutationFn: (id: string) => partnersAPI.approve(id, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partners'] })
-      console.log('Partner approved successfully!')
+      showSuccess('Partner approved successfully! They can now be assigned to products.')
       setApprovalDialog(false)
       setSelectedItem(null)
     },
     onError: (error: any) => {
-      console.log(`Error: ${error.message}`)
+      showError(`Failed to approve partner: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -131,10 +133,13 @@ const ApprovalsIndex = () => {
       productsAPI.reject(id, reason, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      console.log('Product rejected')
+      showSuccess('Product rejected. The submitter will be notified.')
       setRejectionDialog(false)
       setSelectedItem(null)
       setRejectionReason('')
+    },
+    onError: (error: any) => {
+      showError(`Failed to reject product: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -144,10 +149,13 @@ const ApprovalsIndex = () => {
       partnersAPI.reject(id, reason, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partners'] })
-      console.log('Partner rejected')
+      showSuccess('Partner rejected. The submitter will be notified.')
       setRejectionDialog(false)
       setSelectedItem(null)
       setRejectionReason('')
+    },
+    onError: (error: any) => {
+      showError(`Failed to reject partner: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -156,12 +164,12 @@ const ApprovalsIndex = () => {
     mutationFn: (id: string) => assetsAPI.approve(id, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
-      console.log('Asset approved successfully!')
+      showSuccess('Asset approved successfully! Users can now invest in this asset.')
       setApprovalDialog(false)
       setSelectedItem(null)
     },
     onError: (error: any) => {
-      console.log(`Error: ${error.message}`)
+      showError(`Failed to approve asset: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -171,10 +179,13 @@ const ApprovalsIndex = () => {
       assetsAPI.reject(id, reason, 'admin@company.com'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
-      console.log('Asset rejected')
+      showSuccess('Asset rejected. The submitter will be notified.')
       setRejectionDialog(false)
       setSelectedItem(null)
       setRejectionReason('')
+    },
+    onError: (error: any) => {
+      showError(`Failed to reject asset: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -188,12 +199,12 @@ const ApprovalsIndex = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      console.log('Change request approved! (Change was already applied)')
+      showSuccess('Configuration change approved! The change is now active.')
       setApprovalDialog(false)
       setSelectedItem(null)
     },
     onError: (error: any) => {
-      console.log(`Error: ${error.message}`)
+      showError(`Failed to approve change request: ${error.response?.data?.message || error.message}`)
     },
   })
 
@@ -225,13 +236,13 @@ const ApprovalsIndex = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['changeRequests'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      console.log('Change request rejected and reverted')
+      showSuccess('Change request rejected and reverted to original state.')
       setRejectionDialog(false)
       setSelectedItem(null)
       setRejectionReason('')
     },
     onError: (error: any) => {
-      console.log(`Error: ${error.message}`)
+      showError(`Failed to reject change request: ${error.response?.data?.message || error.message}`)
     },
   })
 

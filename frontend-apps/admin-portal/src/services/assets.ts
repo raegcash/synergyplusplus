@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085/api/marketplace'
 // Disabled mock data - now using persistent database only
 const USE_MOCK_DATA = false
 
@@ -451,77 +451,19 @@ export const assetsAPI = {
 
   // Approve asset
   approve: async (id: string, approvedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockAssetsStore.findIndex(a => a.id === id)
-      if (index === -1) throw new Error('Asset not found')
-      mockAssetsStore[index] = {
-        ...mockAssetsStore[index],
-        status: 'ACTIVE',
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-      }
-      return mockAssetsStore[index]
-    }
-
-    try {
-      const response = await api.patch<Asset>(`/assets/${id}/approve`, {
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-        status: 'ACTIVE',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockAssetsStore.findIndex(a => a.id === id)
-      if (index === -1) throw new Error('Asset not found')
-      mockAssetsStore[index] = {
-        ...mockAssetsStore[index],
-        status: 'ACTIVE',
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-      }
-      return mockAssetsStore[index]
-    }
+    const response = await api.patch<Asset>(`/assets/${id}/approve`, {
+      approvedBy,
+    })
+    return response.data
   },
 
   // Reject asset
   reject: async (id: string, reason: string, rejectedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockAssetsStore.findIndex(a => a.id === id)
-      if (index === -1) throw new Error('Asset not found')
-      mockAssetsStore[index] = {
-        ...mockAssetsStore[index],
-        status: 'REJECTED',
-        rejectedBy,
-        rejectedAt: new Date().toISOString(),
-        rejectionReason: reason,
-      }
-      return mockAssetsStore[index]
-    }
-
-    try {
-      const response = await api.patch<Asset>(`/assets/${id}/reject`, {
-        reason,
-        rejectedBy,
-        rejectedAt: new Date().toISOString(),
-        status: 'REJECTED',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockAssetsStore.findIndex(a => a.id === id)
-      if (index === -1) throw new Error('Asset not found')
-      mockAssetsStore[index] = {
-        ...mockAssetsStore[index],
-        status: 'REJECTED',
-        rejectedBy,
-        rejectedAt: new Date().toISOString(),
-        rejectionReason: reason,
-      }
-      return mockAssetsStore[index]
-    }
+    const response = await api.patch<Asset>(`/assets/${id}/reject`, {
+      reason,
+      rejectedBy,
+    })
+    return response.data
   },
 
   // Get pending assets
@@ -542,4 +484,13 @@ export const assetsAPI = {
 }
 
 export default assetsAPI
+
+// Named exports for easier testing and consumption
+export const getAssets = (status?: string) => assetsAPI.getAll(status)
+export const getAssetById = (id: string) => assetsAPI.get(id)
+export const createAsset = (data: Partial<Asset>) => assetsAPI.create(data)
+export const updateAsset = (id: string, data: Partial<Asset>) => assetsAPI.update(id, data)
+export const deleteAsset = (id: string) => assetsAPI.delete(id)
+export const approveAsset = (id: string, approvedBy: string) => assetsAPI.approve(id, approvedBy)
+export const rejectAsset = (id: string, reason: string, rejectedBy: string) => assetsAPI.reject(id, reason, rejectedBy)
 

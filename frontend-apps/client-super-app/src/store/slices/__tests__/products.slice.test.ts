@@ -2,11 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
 import productsReducer, {
   setProducts,
-  setAssets,
   setFilters,
   clearFilters,
 } from '../products.slice';
-import type { Product, Asset } from '../../../types/api.types';
+import type { Product } from '../../../types/api.types';
 
 describe('Products Slice', () => {
   let store: ReturnType<typeof configureStore>;

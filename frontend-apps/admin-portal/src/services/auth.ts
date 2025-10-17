@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
+import { AUTH_BASE_URL } from '../config/api';
 
 export interface LoginCredentials {
   email: string;
@@ -54,7 +54,7 @@ export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
       const response = await axios.post<AuthResponse>(
-        `${API_BASE_URL}/auth/login`,
+        `${AUTH_BASE_URL}/auth/login`,
         credentials
       );
       
@@ -97,7 +97,7 @@ export const authService = {
     
     if (token) {
       try {
-        await axios.post(`${API_BASE_URL}/auth/logout`, {}, {
+        await axios.post(`${AUTH_BASE_URL}/auth/logout`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } catch (error) {
@@ -120,7 +120,7 @@ export const authService = {
     }
     
     try {
-      await axios.get(`${API_BASE_URL}/auth/verify`, {
+      await axios.get(`${AUTH_BASE_URL}/auth/verify`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return true;

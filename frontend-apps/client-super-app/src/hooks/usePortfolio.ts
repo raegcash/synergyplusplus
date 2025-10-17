@@ -1,75 +1,80 @@
 /**
- * Custom hooks for portfolio data
+ * Portfolio Hooks - Enterprise Grade
+ * React hooks for portfolio data fetching
+ * 
+ * @version 1.0.0
+ * @classification Production-Ready
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { portfolioApi } from '../services/api/portfolio.api';
-import { useAppDispatch } from '../store/hooks';
-import {
-  setPortfolioSummary,
-  setHoldings,
-  setLoading,
-  setError,
-} from '../store/slices/portfolio.slice';
 
-export const usePortfolioSummary = () => {
-  const dispatch = useAppDispatch();
-
+/**
+ * Fetch portfolio summary
+ * Includes total invested, current value, returns, allocation
+ */
+export function usePortfolioSummary() {
   return useQuery({
     queryKey: ['portfolio', 'summary'],
-    queryFn: async () => {
-      try {
-        dispatch(setLoading(true));
-        const response = await portfolioApi.getSummary();
-        dispatch(setPortfolioSummary(response.data));
-        dispatch(setLoading(false));
-        return response.data;
-      } catch (error: any) {
-        dispatch(setError(error.message || 'Failed to fetch portfolio summary'));
-        dispatch(setLoading(false));
-        throw error;
-      }
-    },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for real-time updates
+    queryFn: () => portfolioApi.getPortfolioSummary(),
+    staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: true,
   });
-};
+}
 
-export const usePortfolioHoldings = () => {
-  const dispatch = useAppDispatch();
-
+/**
+ * Fetch portfolio holdings
+ * @param options - Query options (assetType, sortBy, sortOrder)
+ */
+export function usePortfolioHoldings(options?: {
+  assetType?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}) {
   return useQuery({
-    queryKey: ['portfolio', 'holdings'],
-    queryFn: async () => {
-      try {
-        dispatch(setLoading(true));
-        const response = await portfolioApi.getHoldings();
-        dispatch(setHoldings(response.data));
-        dispatch(setLoading(false));
-        return response.data;
-      } catch (error: any) {
-        dispatch(setError(error.message || 'Failed to fetch holdings'));
-        dispatch(setLoading(false));
-        throw error;
-      }
-    },
-    staleTime: 1 * 60 * 1000,
-    refetchInterval: 5 * 60 * 1000,
+    queryKey: ['portfolio', 'holdings', options],
+    queryFn: () => portfolioApi.getPortfolioHoldings(options),
+    staleTime: 30000,
+    refetchOnWindowFocus: true,
   });
-};
+}
 
-export const usePortfolioPerformance = (params?: {
-  startDate?: string;
-  endDate?: string;
-}) => {
+/**
+ * Fetch portfolio performance
+ * @param period - Time period (7d, 30d, 90d, 1y, all)
+ */
+export function usePortfolioPerformance(period: string = '30d') {
   return useQuery({
-    queryKey: ['portfolio', 'performance', params],
-    queryFn: async () => {
-      const response = await portfolioApi.getPerformance(params);
-      return response.data;
-    },
-    staleTime: 5 * 60 * 1000,
+    queryKey: ['portfolio', 'performance', period],
+    queryFn: () => portfolioApi.getPortfolioPerformance(period),
+    staleTime: 60000, // 1 minute
+    refetchOnWindowFocus: true,
   });
-};
+}
 
+/**
+ * Fetch specific asset holding details
+ * @param assetId - Asset ID
+ */
+export function useAssetHolding(assetId: string) {
+  return useQuery({
+    queryKey: ['portfolio', 'holdings', assetId],
+    queryFn: () => portfolioApi.getAssetHolding(assetId),
+    enabled: !!assetId,
+    staleTime: 30000,
+  });
+}
 
+/**
+ * Refresh portfolio data
+ * Utility hook to refresh all portfolio queries
+ */
+export function useRefreshPortfolio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+    },
+  });
+}

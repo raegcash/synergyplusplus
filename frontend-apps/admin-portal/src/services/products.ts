@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085/api/marketplace'
 // Disabled mock data - now using persistent database only
 const USE_MOCK_DATA = false
 
@@ -304,16 +304,10 @@ export const productsAPI = {
         : mockProductsStore
     }
     
-    try {
-      const params = status ? { status } : {}
-      const response = await api.get<Product[]>('/products', { params })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      return status 
-        ? mockProductsStore.filter(p => p.status === status)
-        : mockProductsStore
-    }
+    // PRODUCTION MODE: No fallback to mock data!
+    const params = status ? { status } : {}
+    const response = await api.get<Product[]>('/products', { params })
+    return response.data
   },
 
   // Get product by ID
@@ -427,71 +421,19 @@ export const productsAPI = {
 
   // Approve product - goes directly to ACTIVE
   approve: async (id: string, approvedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockProductsStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Product not found')
-      
-      mockProductsStore[index] = {
-        ...mockProductsStore[index],
-        status: 'ACTIVE',
-        approvedAt: new Date().toISOString(),
-      }
-      return mockProductsStore[index]
-    }
-    
-    try {
-      const response = await api.patch<Product>(`/products/${id}/approve`, {
-        approvedBy,
-        approvedAt: new Date().toISOString(),
-        status: 'ACTIVE',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockProductsStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Product not found')
-      
-      mockProductsStore[index] = {
-        ...mockProductsStore[index],
-        status: 'ACTIVE',
-        approvedAt: new Date().toISOString(),
-      }
-      return mockProductsStore[index]
-    }
+    const response = await api.patch<Product>(`/products/${id}/approve`, {
+      approvedBy,
+    })
+    return response.data
   },
 
   // Reject product
   reject: async (id: string, reason: string, rejectedBy: string) => {
-    if (USE_MOCK_DATA) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const index = mockProductsStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Product not found')
-      mockProductsStore[index] = {
-        ...mockProductsStore[index],
-        status: 'REJECTED',
-      }
-      return mockProductsStore[index]
-    }
-    
-    try {
-      const response = await api.patch<Product>(`/products/${id}/reject`, {
-        reason,
-        rejectedBy,
-        rejectedAt: new Date().toISOString(),
-        status: 'REJECTED',
-      })
-      return response.data
-    } catch (error) {
-      console.warn('API call failed, using mock data:', error)
-      const index = mockProductsStore.findIndex(p => p.id === id)
-      if (index === -1) throw new Error('Product not found')
-      mockProductsStore[index] = {
-        ...mockProductsStore[index],
-        status: 'REJECTED',
-      }
-      return mockProductsStore[index]
-    }
+    const response = await api.patch<Product>(`/products/${id}/reject`, {
+      reason,
+      rejectedBy,
+    })
+    return response.data
   },
 
   // Get pending approvals
@@ -641,4 +583,15 @@ export const productsAPI = {
 }
 
 export default productsAPI
+
+// Named exports for easier testing and consumption
+export const getProducts = (status?: string) => productsAPI.getAll(status)
+export const getProductById = (id: string) => productsAPI.get(id)
+export const createProduct = (data: Partial<Product>) => productsAPI.create(data)
+export const updateProduct = (id: string, data: Partial<Product>) => productsAPI.update(id, data)
+export const deleteProduct = (id: string) => productsAPI.delete(id)
+export const approveProduct = (id: string, approvedBy: string) => productsAPI.approve(id, approvedBy)
+export const rejectProduct = (id: string, reason: string, rejectedBy: string) => productsAPI.reject(id, reason, rejectedBy)
+export const toggleProductMaintenance = (id: string) => productsAPI.toggleMaintenance(id)
+export const toggleProductWhitelist = (id: string) => productsAPI.toggleWhitelist(id)
 

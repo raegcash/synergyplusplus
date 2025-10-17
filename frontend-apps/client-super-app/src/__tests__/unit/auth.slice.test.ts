@@ -2,7 +2,7 @@
  * Unit Tests for Auth Redux Slice
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import authReducer, {
   login,
   register,
@@ -16,13 +16,15 @@ import type { User } from '../../types/api.types';
 
 const mockUser: User = {
   id: '123',
+  userId: '123',
   email: 'test@example.com',
   firstName: 'Test',
   lastName: 'User',
   phoneNumber: '+639123456789',
   kycStatus: 'PENDING',
-  status: 'ACTIVE',
+  accountStatus: 'ACTIVE',
   createdAt: '2025-10-15T00:00:00Z',
+  updatedAt: '2025-10-15T00:00:00Z',
 };
 
 describe('Auth Slice', () => {

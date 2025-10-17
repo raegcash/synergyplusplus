@@ -31,20 +31,23 @@ describe('Auth API', () => {
         password: 'password123',
       };
 
+      // Backend returns AuthResponse directly (no wrapper)
       const mockResponse = {
         data: {
-          success: true,
-          data: {
-            accessToken: 'mock-access-token',
-            refreshToken: 'mock-refresh-token',
-            user: {
-              id: '123',
-              email: 'test@example.com',
-              firstName: 'Test',
-              lastName: 'User',
-              kycStatus: 'PENDING',
-              status: 'ACTIVE',
-            },
+          accessToken: 'mock-access-token',
+          refreshToken: 'mock-refresh-token',
+          tokenType: 'Bearer',
+          expiresIn: 86400000,
+          user: {
+            id: '123',
+            userId: '123',
+            email: 'test@example.com',
+            firstName: 'Test',
+            lastName: 'User',
+            kycStatus: 'PENDING',
+            accountStatus: 'ACTIVE',
+            createdAt: '2025-10-15T00:00:00Z',
+            updatedAt: '2025-10-15T00:00:00Z',
           },
         },
       };
@@ -55,7 +58,7 @@ describe('Auth API', () => {
 
       expect(apiClient.post).toHaveBeenCalledWith('/api/v1/auth/login', mockLoginData);
       expect(result).toEqual(mockResponse.data);
-      expect(result.data.user.email).toBe('test@example.com');
+      expect(result.user.email).toBe('test@example.com');
     });
 
     it('should throw error for invalid credentials', async () => {

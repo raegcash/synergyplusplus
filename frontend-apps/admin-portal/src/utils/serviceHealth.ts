@@ -19,16 +19,16 @@ export interface HealthCheckResult {
 
 const REQUIRED_SERVICES = [
   {
-    name: 'Admin BFF',
-    url: 'http://localhost:9001/actuator/health',
-    requiredFor: 'Authentication & API Gateway',
-    port: 9001,
-  },
-  {
     name: 'Marketplace API',
     url: 'http://localhost:8085/api/marketplace/health',
     requiredFor: 'Product & Partner Management',
     port: 8085,
+  },
+  {
+    name: 'Admin Identity Service',
+    url: 'http://localhost:8082/actuator/health',
+    requiredFor: 'Admin Authentication',
+    port: 8082,
   },
 ];
 

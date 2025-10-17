@@ -8,6 +8,7 @@ spring:
 # Backend service URLs
 services:
   identity: http://localhost:8081
+  marketplace: http://localhost:8085
   investment: http://localhost:8084
   lending: http://localhost:8085
   savings: http://localhost:8086

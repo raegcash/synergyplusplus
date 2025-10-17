@@ -28,12 +28,14 @@ export const login = createAsyncThunk(
   async (credentials: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials);
-      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.accessToken);
-      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.data.refreshToken);
-      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.user));
-      return response.data.user;
+      // Backend returns AuthResponse directly (not wrapped in data property)
+      const { accessToken, refreshToken, user } = response;
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
+      return user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error?.message || 'Login failed');
+      return rejectWithValue(error.response?.data?.error?.message || error.response?.data?.message || error.message || 'Login failed');
     }
   }
 );

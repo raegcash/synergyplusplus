@@ -22,14 +22,14 @@ describe('Login Component', () => {
     expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
   });
 
   it('should show validation errors for empty fields', async () => {
     const user = userEvent.setup();
     render(<Login />);
     
-    const loginButton = screen.getByRole('button', { name: /Login/i });
+    const loginButton = screen.getByRole('button', { name: /Sign In/i });
     await user.click(loginButton);
     
     await waitFor(() => {
@@ -43,7 +43,7 @@ describe('Login Component', () => {
     render(<Login />);
     
     const emailInput = screen.getByLabelText(/Email/i);
-    const loginButton = screen.getByRole('button', { name: /Login/i });
+    const loginButton = screen.getByRole('button', { name: /Sign In/i });
     
     await user.type(emailInput, 'invalid-email');
     await user.click(loginButton);
@@ -59,7 +59,7 @@ describe('Login Component', () => {
     
     const emailInput = screen.getByLabelText(/Email/i);
     const passwordInput = screen.getByLabelText(/Password/i);
-    const loginButton = screen.getByRole('button', { name: /Login/i });
+    const loginButton = screen.getByRole('button', { name: /Sign In/i });
     
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');

@@ -1,5 +1,6 @@
 services:
   identity: http://identity-service:8081
+  marketplace: http://marketplace-api-node:8085
   investment: http://investment-service:8084
   lending: http://lending-service:8085
   savings: http://savings-service:8086

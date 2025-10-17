@@ -1,81 +1,99 @@
-import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import { renderWithProviders } from '../../../test/testUtils';
+/**
+ * Portfolio Component Tests
+ * Tests for Portfolio page functionality
+ * 
+ * @module pages/Portfolio/__tests__/Portfolio.test
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { screen } from '@testing-library/react';
+import { render } from '../../../test/testUtils';
 import Portfolio from '../Portfolio';
+import * as portfolioHooks from '../../../hooks/usePortfolio';
 
 // Mock hooks
-vi.mock('../../../hooks/usePortfolio', () => ({
-  usePortfolioSummary: vi.fn(() => ({
-    data: {
-      data: {
-        totalPortfolioValue: 100000,
-        totalInvestments: 95000,
-        totalReturns: 5000,
-        returnPercentage: 5.26,
+vi.mock('../../../hooks/usePortfolio');
+
+describe('Portfolio Component', () => {
+
+  const mockPortfolioData = {
+    summary: {
+      totalValue: 150000,
+      totalInvested: 120000,
+      totalGainLoss: 30000,
+      totalGainLossPercent: 25,
+    },
+    holdings: [
+      {
+        assetId: '1',
+        assetName: 'BDO Equity Fund',
+        assetType: 'UITF',
+        units: 1000,
+        averagePrice: 100,
+        currentPrice: 120,
+        totalValue: 120000,
+        gainLoss: 20000,
+        gainLossPercent: 20,
       },
+    ],
+    performance: {
+      daily: 5,
+      weekly: 10,
+      monthly: 15,
+      yearly: 25,
     },
-    isLoading: false,
-    error: null,
-  })),
-  usePortfolioHoldings: vi.fn(() => ({
-    data: {
-      data: [],
-    },
-    isLoading: false,
-    error: null,
-  })),
-}));
-
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
   };
-});
 
-describe('Portfolio', () => {
-  it('renders portfolio page', () => {
-    renderWithProviders(<Portfolio />);
+  beforeEach(() => {
+    vi.mocked(portfolioHooks.usePortfolioSummary).mockReturnValue({
+      data: mockPortfolioData.summary,
+      isLoading: false,
+      error: null,
+    } as any);
 
+    vi.mocked(portfolioHooks.usePortfolioHoldings).mockReturnValue({
+      data: mockPortfolioData.holdings,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    vi.mocked(portfolioHooks.usePortfolioPerformance).mockReturnValue({
+      data: mockPortfolioData.performance,
+      isLoading: false,
+      error: null,
+    } as any);
+  });
+
+  it('should render portfolio page', () => {
+    render(<Portfolio />);
     expect(screen.getByText('My Portfolio')).toBeInTheDocument();
-    expect(screen.getByText(/Track your investments/i)).toBeInTheDocument();
   });
 
-  it('displays portfolio summary cards', async () => {
-    renderWithProviders(<Portfolio />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Total Portfolio Value')).toBeInTheDocument();
-      expect(screen.getByText('Total Investments')).toBeInTheDocument();
-      expect(screen.getByText('Total Returns')).toBeInTheDocument();
-    });
+  it('should display total portfolio value', () => {
+    render(<Portfolio />);
+    expect(screen.getByText(/150,000/)).toBeInTheDocument();
   });
 
-  it('shows portfolio values', async () => {
-    renderWithProviders(<Portfolio />);
-
-    await waitFor(() => {
-      expect(screen.getByText('₱100,000.00')).toBeInTheDocument();
-      expect(screen.getByText('₱95,000.00')).toBeInTheDocument();
-      expect(screen.getByText('₱5,000.00')).toBeInTheDocument();
-    });
+  it('should display total gain/loss', () => {
+    render(<Portfolio />);
+    expect(screen.getByText(/30,000/)).toBeInTheDocument();
+    expect(screen.getByText(/25%/)).toBeInTheDocument();
   });
 
-  it('displays empty state when no holdings', async () => {
-    renderWithProviders(<Portfolio />);
-
-    await waitFor(() => {
-      expect(screen.getByText('No Holdings Yet')).toBeInTheDocument();
-    });
+  it('should display holdings', () => {
+    render(<Portfolio />);
+    expect(screen.getByText('BDO Equity Fund')).toBeInTheDocument();
+    expect(screen.getByText('UITF')).toBeInTheDocument();
   });
 
-  it('has refresh button', () => {
-    renderWithProviders(<Portfolio />);
+  it('should show loading state', () => {
+    vi.mocked(portfolioHooks.usePortfolioSummary).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    } as any);
 
-    const refreshButton = screen.getByRole('button', { name: /Refresh/i });
-    expect(refreshButton).toBeInTheDocument();
+    render(<Portfolio />);
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 });
-

@@ -124,10 +124,10 @@ export const Login: React.FC = () => {
                 <strong>Default Credentials:</strong>
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Email: <strong>admin@superapp.com</strong>
+                Email: <strong>admin.portal@superapp.com</strong>
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Password: <strong>Admin@123</strong>
+                Password: <strong>AdminPortal@123</strong>
               </Typography>
             </Box>
           </CardContent>

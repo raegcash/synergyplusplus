@@ -1,8 +1,9 @@
 services:
   identity: http://identity-service:8081
   partner: http://partner-management-service:8091
-  catalog: http://product-catalog-service:8090
+  catalog: http:// product-catalog-service:8090
   risk: http://risk-monitor-service:8083
+  marketplace: http://marketplace-api:8085/api/marketplace
 
 logging:
   level:

@@ -11,6 +11,7 @@ services:
   partner: http://localhost:8091
   catalog: http://localhost:8090
   risk: http://localhost:8083
+  marketplace: http://localhost:8085/api/marketplace
 
 management:
   endpoints:
@@ -25,7 +26,3 @@ logging:
   level:
     com.superapp.bff.admin: DEBUG
     org.springframework.web: INFO
-
-
-
-
